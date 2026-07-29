@@ -6,21 +6,23 @@ export default function EventCard({ event }) {
   });
 
   return (
-    <article className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-      {event.image_url && (
+    <article className="overflow-hidden rounded-2xl border border-msn-navy/10 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+      {event.image_url ? (
         <img
           src={event.image_url}
           alt={event.title}
           className="h-44 w-full object-cover"
         />
+      ) : (
+        <div className="h-2 w-full bg-msn-gold" />
       )}
       <div className="p-5">
-        <p className="text-xs font-medium uppercase tracking-wide text-indigo-600">
+        <p className="inline-block rounded-full bg-msn-gold/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-msn-gold">
           {formattedDate}
         </p>
-        <h3 className="mt-1 text-lg font-semibold text-slate-900">{event.title}</h3>
+        <h3 className="mt-3 text-lg font-semibold text-msn-ink">{event.title}</h3>
         {event.description && (
-          <p className="mt-2 text-sm text-slate-600">{event.description}</p>
+          <p className="mt-2 text-sm text-msn-ink/60">{event.description}</p>
         )}
       </div>
     </article>

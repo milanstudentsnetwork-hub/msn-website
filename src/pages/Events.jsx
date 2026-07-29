@@ -24,21 +24,23 @@ export default function Events() {
   }, []);
 
   return (
-    <section className="mx-auto max-w-6xl px-6 py-16">
-      <h1 className="text-3xl font-bold text-slate-900">Events</h1>
-      <p className="mt-2 text-slate-600">Everything happening in the Milan Student Network community.</p>
+    <section className="bg-msn-mint px-6 py-16 sm:py-20">
+      <div className="mx-auto max-w-6xl">
+        <h1 className="text-3xl font-bold text-msn-ink">Events</h1>
+        <p className="mt-2 text-msn-ink/60">Everything happening in the Milan Student Network community.</p>
 
-      {loading ? (
-        <p className="mt-10 text-slate-500">Loading events...</p>
-      ) : events.length === 0 ? (
-        <p className="mt-10 text-slate-500">No events published yet — check back soon.</p>
-      ) : (
-        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {events.map((event) => (
-            <EventCard key={event.id} event={event} />
-          ))}
-        </div>
-      )}
+        {loading ? (
+          <p className="mt-10 text-msn-ink/60">Loading events...</p>
+        ) : events.length === 0 ? (
+          <p className="mt-10 text-msn-ink/60">No events published yet — check back soon.</p>
+        ) : (
+          <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {events.map((event) => (
+              <EventCard key={event.id} event={event} />
+            ))}
+          </div>
+        )}
+      </div>
     </section>
   );
 }

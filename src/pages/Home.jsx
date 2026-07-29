@@ -12,25 +12,31 @@ function EventsPreview({ settings }) {
   const bgImage = settings?.background_image_url;
 
   useEffect(() => {
+    let active = true;
     supabase
       .from("events")
       .select("*")
       .order("date", { ascending: true })
       .limit(3)
-      .then(({ data }) => setEvents(data ?? []));
+      .then(({ data }) => {
+        if (active) setEvents(data ?? []);
+      });
+    return () => {
+      active = false;
+    };
   }, []);
 
   return (
     <section
-      className="bg-slate-50 bg-cover bg-center px-6 py-16"
+      className="bg-msn-mint bg-cover bg-center px-6 py-16 sm:py-20"
       style={bgImage ? { backgroundImage: `url(${bgImage})` } : undefined}
     >
       <div className="mx-auto max-w-6xl">
-        <h2 className="text-center text-3xl font-bold text-slate-900">
+        <h2 className="text-center text-3xl font-bold text-msn-ink">
           {settings?.content?.heading || "Upcoming Events"}
         </h2>
         {events.length === 0 ? (
-          <p className="mt-6 text-center text-slate-500">No upcoming events yet — check back soon.</p>
+          <p className="mt-6 text-center text-msn-ink/60">No upcoming events yet — check back soon.</p>
         ) : (
           <div className="mt-10 grid gap-6 sm:grid-cols-3">
             {events.map((event) => (
@@ -39,7 +45,7 @@ function EventsPreview({ settings }) {
           </div>
         )}
         <div className="mt-8 text-center">
-          <Link to="/events" className="text-indigo-600 hover:underline">
+          <Link to="/events" className="text-sm font-semibold text-msn-ink underline decoration-msn-gold decoration-2 underline-offset-4">
             View all events &rarr;
           </Link>
         </div>
@@ -53,25 +59,31 @@ function FaqPreview({ settings }) {
   const bgImage = settings?.background_image_url;
 
   useEffect(() => {
+    let active = true;
     supabase
       .from("faqs")
       .select("*")
       .order("display_order", { ascending: true })
       .limit(3)
-      .then(({ data }) => setFaqs(data ?? []));
+      .then(({ data }) => {
+        if (active) setFaqs(data ?? []);
+      });
+    return () => {
+      active = false;
+    };
   }, []);
 
   return (
     <section
-      className="bg-white bg-cover bg-center px-6 py-16"
+      className="bg-msn-cream bg-cover bg-center px-6 py-16 sm:py-20"
       style={bgImage ? { backgroundImage: `url(${bgImage})` } : undefined}
     >
       <div className="mx-auto max-w-3xl">
-        <h2 className="text-center text-3xl font-bold text-slate-900">
+        <h2 className="text-center text-3xl font-bold text-msn-ink">
           {settings?.content?.heading || "Frequently Asked Questions"}
         </h2>
         {faqs.length === 0 ? (
-          <p className="mt-6 text-center text-slate-500">No FAQs published yet.</p>
+          <p className="mt-6 text-center text-msn-ink/60">No FAQs published yet.</p>
         ) : (
           <div className="mt-10 space-y-3">
             {faqs.map((faq) => (
@@ -80,7 +92,7 @@ function FaqPreview({ settings }) {
           </div>
         )}
         <div className="mt-8 text-center">
-          <Link to="/faq" className="text-indigo-600 hover:underline">
+          <Link to="/faq" className="text-sm font-semibold text-msn-ink underline decoration-msn-gold decoration-2 underline-offset-4">
             View all FAQs &rarr;
           </Link>
         </div>
@@ -100,7 +112,7 @@ export default function Home() {
   const { settings, loading } = useSiteSettings();
 
   if (loading) {
-    return <div className="py-24 text-center text-slate-500">Loading...</div>;
+    return <div className="bg-msn-cream py-24 text-center text-msn-ink/60">Loading...</div>;
   }
 
   const orderedSections = settings.length
