@@ -28,7 +28,11 @@ export function SiteFooter() {
       <div className="relative mx-auto grid max-w-7xl gap-10 px-5 py-16 md:grid-cols-[1.4fr_1fr_1fr]">
         <div>
           <div className="flex items-center gap-3">
-            <img src={logo} alt="Milan Students Network" className="size-11 shrink-0" />
+            <img
+              src={logo}
+              alt="Milan Students Network"
+              className="size-11 shrink-0 rounded-full object-cover ring-2 ring-primary-foreground/15"
+            />
             <span className="font-display text-lg font-semibold">Milan Students Network</span>
           </div>
           <p className="mt-4 max-w-sm text-sm text-primary-foreground/75">

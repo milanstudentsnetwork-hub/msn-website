@@ -40,7 +40,11 @@ function AdminLoginPage() {
         className="w-full max-w-sm rounded-3xl border border-border bg-card p-8 shadow-lift"
       >
         <div className="flex items-center gap-3">
-          <img src={logo} alt="Milan Students Network" className="size-11 shrink-0" />
+          <img
+            src={logo}
+            alt="Milan Students Network"
+            className="size-11 shrink-0 rounded-full object-cover ring-2 ring-primary/10"
+          />
           <div>
             <h1 className="font-display text-lg font-semibold">Admin Sign In</h1>
             <p className="text-xs text-muted-foreground">Milan Students Network</p>

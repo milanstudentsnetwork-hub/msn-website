@@ -41,7 +41,7 @@ export function SiteHeader() {
           <img
             src={logo}
             alt="Milan Students Network"
-            className="size-11 shrink-0 transition-transform duration-300 group-hover:-rotate-6"
+            className="size-11 shrink-0 rounded-full object-cover ring-2 ring-primary/10 transition-transform duration-300 group-hover:-rotate-6"
           />
           <span className="leading-tight">
             <span className="block font-display text-base font-semibold">Milan Students</span>
