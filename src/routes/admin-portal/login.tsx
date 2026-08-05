@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import logo from "@/assets/logo-header.png";
 
 export const Route = createFileRoute("/admin-portal/login")({
   head: () => ({ meta: [{ title: "Admin Sign In | Milan Students Network" }] }),
@@ -39,9 +40,7 @@ function AdminLoginPage() {
         className="w-full max-w-sm rounded-3xl border border-border bg-card p-8 shadow-lift"
       >
         <div className="flex items-center gap-3">
-          <span className="grid size-11 place-items-center rounded-2xl bg-primary font-display text-lg font-semibold text-primary-foreground">
-            M
-          </span>
+          <img src={logo} alt="Milan Students Network" className="size-11 shrink-0" />
           <div>
             <h1 className="font-display text-lg font-semibold">Admin Sign In</h1>
             <p className="text-xs text-muted-foreground">Milan Students Network</p>

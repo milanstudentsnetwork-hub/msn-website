@@ -2,6 +2,7 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Instagram, Lock, Mail, MessageCircle } from "lucide-react";
 import { siteSettingsQuery } from "@/lib/queries";
+import logo from "@/assets/logo-header.png";
 
 export function SiteFooter() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -27,9 +28,7 @@ export function SiteFooter() {
       <div className="relative mx-auto grid max-w-7xl gap-10 px-5 py-16 md:grid-cols-[1.4fr_1fr_1fr]">
         <div>
           <div className="flex items-center gap-3">
-            <span className="grid size-11 place-items-center rounded-2xl bg-secondary font-display text-lg font-semibold text-secondary-foreground">
-              M
-            </span>
+            <img src={logo} alt="Milan Students Network" className="size-11 shrink-0" />
             <span className="font-display text-lg font-semibold">Milan Students Network</span>
           </div>
           <p className="mt-4 max-w-sm text-sm text-primary-foreground/75">

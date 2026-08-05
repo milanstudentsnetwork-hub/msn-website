@@ -4,6 +4,7 @@ import { Menu, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import logo from "@/assets/logo-header.png";
 
 const links = [
   { to: "/", label: "Home" },
@@ -37,10 +38,11 @@ export function SiteHeader() {
     >
       <div className="mx-auto flex max-w-7xl items-center gap-4 px-5 py-4">
         <Link to="/" className="group flex items-center gap-3" onClick={() => setOpen(false)}>
-          <span className="relative grid size-11 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-soft transition-transform duration-300 group-hover:-rotate-6">
-            <span className="font-display text-lg font-semibold">M</span>
-            <span className="absolute -right-1 -top-1 size-3.5 rounded-full bg-accent" />
-          </span>
+          <img
+            src={logo}
+            alt="Milan Students Network"
+            className="size-11 shrink-0 transition-transform duration-300 group-hover:-rotate-6"
+          />
           <span className="leading-tight">
             <span className="block font-display text-base font-semibold">Milan Students</span>
             <span className="block text-xs font-medium tracking-widest text-muted-foreground uppercase">
