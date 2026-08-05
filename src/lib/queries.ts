@@ -1,5 +1,5 @@
 import { queryOptions } from "@tanstack/react-query";
-import { listEvents, listFaqs, listListings, listServices } from "./content.functions";
+import { getSiteSettings, listEvents, listFaqs, listListings, listServices } from "./content.functions";
 
 export const eventsQuery = queryOptions({
   queryKey: ["events"],
@@ -22,5 +22,11 @@ export const faqsQuery = queryOptions({
 export const listingsQuery = queryOptions({
   queryKey: ["listings"],
   queryFn: () => listListings(),
+  staleTime: 60_000,
+});
+
+export const siteSettingsQuery = queryOptions({
+  queryKey: ["site-settings"],
+  queryFn: () => getSiteSettings(),
   staleTime: 60_000,
 });

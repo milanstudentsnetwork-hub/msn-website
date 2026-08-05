@@ -16,6 +16,15 @@ import { Route as ContactRouteImport } from './routes/contact'
 import { Route as EventsRouteImport } from './routes/events'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as ServicesRouteImport } from './routes/services'
+import { Route as AdminPortalIndexRouteImport } from './routes/admin-portal/index'
+import { Route as AdminPortalAccommodationRouteImport } from './routes/admin-portal/accommodation'
+import { Route as AdminPortalEventsRouteImport } from './routes/admin-portal/events'
+import { Route as AdminPortalFaqsRouteImport } from './routes/admin-portal/faqs'
+import { Route as AdminPortalLoginRouteImport } from './routes/admin-portal/login'
+import { Route as AdminPortalMessagesRouteImport } from './routes/admin-portal/messages'
+import { Route as AdminPortalRequestsRouteImport } from './routes/admin-portal/requests'
+import { Route as AdminPortalServicesRouteImport } from './routes/admin-portal/services'
+import { Route as AdminPortalSettingsRouteImport } from './routes/admin-portal/settings'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -52,6 +61,52 @@ const ServicesRoute = ServicesRouteImport.update({
   path: '/services',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminPortalIndexRoute = AdminPortalIndexRouteImport.update({
+  id: '/admin-portal/',
+  path: '/admin-portal/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminPortalAccommodationRoute =
+  AdminPortalAccommodationRouteImport.update({
+    id: '/admin-portal/accommodation',
+    path: '/admin-portal/accommodation',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const AdminPortalEventsRoute = AdminPortalEventsRouteImport.update({
+  id: '/admin-portal/events',
+  path: '/admin-portal/events',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminPortalFaqsRoute = AdminPortalFaqsRouteImport.update({
+  id: '/admin-portal/faqs',
+  path: '/admin-portal/faqs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminPortalLoginRoute = AdminPortalLoginRouteImport.update({
+  id: '/admin-portal/login',
+  path: '/admin-portal/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminPortalMessagesRoute = AdminPortalMessagesRouteImport.update({
+  id: '/admin-portal/messages',
+  path: '/admin-portal/messages',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminPortalRequestsRoute = AdminPortalRequestsRouteImport.update({
+  id: '/admin-portal/requests',
+  path: '/admin-portal/requests',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminPortalServicesRoute = AdminPortalServicesRouteImport.update({
+  id: '/admin-portal/services',
+  path: '/admin-portal/services',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminPortalSettingsRoute = AdminPortalSettingsRouteImport.update({
+  id: '/admin-portal/settings',
+  path: '/admin-portal/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -61,6 +116,15 @@ export interface FileRoutesByFullPath {
   '/events': typeof EventsRoute
   '/faq': typeof FaqRoute
   '/services': typeof ServicesRoute
+  '/admin-portal/accommodation': typeof AdminPortalAccommodationRoute
+  '/admin-portal/events': typeof AdminPortalEventsRoute
+  '/admin-portal/faqs': typeof AdminPortalFaqsRoute
+  '/admin-portal/login': typeof AdminPortalLoginRoute
+  '/admin-portal/messages': typeof AdminPortalMessagesRoute
+  '/admin-portal/requests': typeof AdminPortalRequestsRoute
+  '/admin-portal/services': typeof AdminPortalServicesRoute
+  '/admin-portal/settings': typeof AdminPortalSettingsRoute
+  '/admin-portal/': typeof AdminPortalIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -70,6 +134,15 @@ export interface FileRoutesByTo {
   '/events': typeof EventsRoute
   '/faq': typeof FaqRoute
   '/services': typeof ServicesRoute
+  '/admin-portal/accommodation': typeof AdminPortalAccommodationRoute
+  '/admin-portal/events': typeof AdminPortalEventsRoute
+  '/admin-portal/faqs': typeof AdminPortalFaqsRoute
+  '/admin-portal/login': typeof AdminPortalLoginRoute
+  '/admin-portal/messages': typeof AdminPortalMessagesRoute
+  '/admin-portal/requests': typeof AdminPortalRequestsRoute
+  '/admin-portal/services': typeof AdminPortalServicesRoute
+  '/admin-portal/settings': typeof AdminPortalSettingsRoute
+  '/admin-portal': typeof AdminPortalIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -80,6 +153,15 @@ export interface FileRoutesById {
   '/events': typeof EventsRoute
   '/faq': typeof FaqRoute
   '/services': typeof ServicesRoute
+  '/admin-portal/accommodation': typeof AdminPortalAccommodationRoute
+  '/admin-portal/events': typeof AdminPortalEventsRoute
+  '/admin-portal/faqs': typeof AdminPortalFaqsRoute
+  '/admin-portal/login': typeof AdminPortalLoginRoute
+  '/admin-portal/messages': typeof AdminPortalMessagesRoute
+  '/admin-portal/requests': typeof AdminPortalRequestsRoute
+  '/admin-portal/services': typeof AdminPortalServicesRoute
+  '/admin-portal/settings': typeof AdminPortalSettingsRoute
+  '/admin-portal/': typeof AdminPortalIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -91,6 +173,15 @@ export interface FileRouteTypes {
     | '/events'
     | '/faq'
     | '/services'
+    | '/admin-portal/accommodation'
+    | '/admin-portal/events'
+    | '/admin-portal/faqs'
+    | '/admin-portal/login'
+    | '/admin-portal/messages'
+    | '/admin-portal/requests'
+    | '/admin-portal/services'
+    | '/admin-portal/settings'
+    | '/admin-portal/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -100,6 +191,15 @@ export interface FileRouteTypes {
     | '/events'
     | '/faq'
     | '/services'
+    | '/admin-portal/accommodation'
+    | '/admin-portal/events'
+    | '/admin-portal/faqs'
+    | '/admin-portal/login'
+    | '/admin-portal/messages'
+    | '/admin-portal/requests'
+    | '/admin-portal/services'
+    | '/admin-portal/settings'
+    | '/admin-portal'
   id:
     | '__root__'
     | '/'
@@ -109,6 +209,15 @@ export interface FileRouteTypes {
     | '/events'
     | '/faq'
     | '/services'
+    | '/admin-portal/accommodation'
+    | '/admin-portal/events'
+    | '/admin-portal/faqs'
+    | '/admin-portal/login'
+    | '/admin-portal/messages'
+    | '/admin-portal/requests'
+    | '/admin-portal/services'
+    | '/admin-portal/settings'
+    | '/admin-portal/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -119,6 +228,15 @@ export interface RootRouteChildren {
   EventsRoute: typeof EventsRoute
   FaqRoute: typeof FaqRoute
   ServicesRoute: typeof ServicesRoute
+  AdminPortalAccommodationRoute: typeof AdminPortalAccommodationRoute
+  AdminPortalEventsRoute: typeof AdminPortalEventsRoute
+  AdminPortalFaqsRoute: typeof AdminPortalFaqsRoute
+  AdminPortalLoginRoute: typeof AdminPortalLoginRoute
+  AdminPortalMessagesRoute: typeof AdminPortalMessagesRoute
+  AdminPortalRequestsRoute: typeof AdminPortalRequestsRoute
+  AdminPortalServicesRoute: typeof AdminPortalServicesRoute
+  AdminPortalSettingsRoute: typeof AdminPortalSettingsRoute
+  AdminPortalIndexRoute: typeof AdminPortalIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -172,6 +290,69 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ServicesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin-portal/': {
+      id: '/admin-portal/'
+      path: '/admin-portal'
+      fullPath: '/admin-portal/'
+      preLoaderRoute: typeof AdminPortalIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin-portal/accommodation': {
+      id: '/admin-portal/accommodation'
+      path: '/admin-portal/accommodation'
+      fullPath: '/admin-portal/accommodation'
+      preLoaderRoute: typeof AdminPortalAccommodationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin-portal/events': {
+      id: '/admin-portal/events'
+      path: '/admin-portal/events'
+      fullPath: '/admin-portal/events'
+      preLoaderRoute: typeof AdminPortalEventsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin-portal/faqs': {
+      id: '/admin-portal/faqs'
+      path: '/admin-portal/faqs'
+      fullPath: '/admin-portal/faqs'
+      preLoaderRoute: typeof AdminPortalFaqsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin-portal/login': {
+      id: '/admin-portal/login'
+      path: '/admin-portal/login'
+      fullPath: '/admin-portal/login'
+      preLoaderRoute: typeof AdminPortalLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin-portal/messages': {
+      id: '/admin-portal/messages'
+      path: '/admin-portal/messages'
+      fullPath: '/admin-portal/messages'
+      preLoaderRoute: typeof AdminPortalMessagesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin-portal/requests': {
+      id: '/admin-portal/requests'
+      path: '/admin-portal/requests'
+      fullPath: '/admin-portal/requests'
+      preLoaderRoute: typeof AdminPortalRequestsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin-portal/services': {
+      id: '/admin-portal/services'
+      path: '/admin-portal/services'
+      fullPath: '/admin-portal/services'
+      preLoaderRoute: typeof AdminPortalServicesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin-portal/settings': {
+      id: '/admin-portal/settings'
+      path: '/admin-portal/settings'
+      fullPath: '/admin-portal/settings'
+      preLoaderRoute: typeof AdminPortalSettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -183,6 +364,15 @@ const rootRouteChildren: RootRouteChildren = {
   EventsRoute: EventsRoute,
   FaqRoute: FaqRoute,
   ServicesRoute: ServicesRoute,
+  AdminPortalAccommodationRoute: AdminPortalAccommodationRoute,
+  AdminPortalEventsRoute: AdminPortalEventsRoute,
+  AdminPortalFaqsRoute: AdminPortalFaqsRoute,
+  AdminPortalLoginRoute: AdminPortalLoginRoute,
+  AdminPortalMessagesRoute: AdminPortalMessagesRoute,
+  AdminPortalRequestsRoute: AdminPortalRequestsRoute,
+  AdminPortalServicesRoute: AdminPortalServicesRoute,
+  AdminPortalSettingsRoute: AdminPortalSettingsRoute,
+  AdminPortalIndexRoute: AdminPortalIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

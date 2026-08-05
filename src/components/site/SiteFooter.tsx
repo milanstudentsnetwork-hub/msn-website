@@ -1,7 +1,17 @@
-import { Link } from "@tanstack/react-router";
-import { Instagram, Mail, MessageCircle } from "lucide-react";
+import { Link, useRouterState } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { Instagram, Lock, Mail, MessageCircle } from "lucide-react";
+import { siteSettingsQuery } from "@/lib/queries";
 
 export function SiteFooter() {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const { data: settings } = useQuery(siteSettingsQuery);
+  const email = settings?.["contact_email"] || "hello@milanstudents.network";
+  const instagramUrl = settings?.["instagram_url"] || "https://instagram.com";
+  const whatsappUrl = settings?.["whatsapp_url"] || "https://t.me";
+
+  if (pathname.startsWith("/admin-portal")) return null;
+
   return (
     <footer className="relative mt-24 overflow-hidden bg-primary text-primary-foreground">
       <div
@@ -28,14 +38,14 @@ export function SiteFooter() {
           </p>
           <div className="mt-6 flex gap-3">
             <a
-              href="mailto:hello@milanstudents.network"
+              href={`mailto:${email}`}
               aria-label="Email us"
               className="press grid size-11 place-items-center rounded-full bg-primary-foreground/10 transition-colors hover:bg-accent"
             >
               <Mail className="size-5" />
             </a>
             <a
-              href="https://instagram.com"
+              href={instagramUrl}
               target="_blank"
               rel="noreferrer"
               aria-label="Instagram"
@@ -44,10 +54,10 @@ export function SiteFooter() {
               <Instagram className="size-5" />
             </a>
             <a
-              href="https://t.me"
+              href={whatsappUrl}
               target="_blank"
               rel="noreferrer"
-              aria-label="Telegram community"
+              aria-label="WhatsApp community"
               className="press grid size-11 place-items-center rounded-full bg-primary-foreground/10 transition-colors hover:bg-accent"
             >
               <MessageCircle className="size-5" />
@@ -118,8 +128,16 @@ export function SiteFooter() {
 
       <div className="relative mx-auto flex max-w-7xl flex-col gap-2 border-t border-primary-foreground/15 px-5 py-6 text-xs text-primary-foreground/60 sm:flex-row sm:items-center sm:justify-between">
         <p>© {new Date().getFullYear()} Milan Students Network. Made by students, for students.</p>
-        <p>Milano, Italia · hello@milanstudents.network</p>
+        <p>Milano, Italia · {email}</p>
       </div>
+
+      <Link
+        to="/admin-portal/login"
+        aria-label="Admin"
+        className="absolute bottom-4 right-4 opacity-20 transition-opacity hover:opacity-60"
+      >
+        <Lock className="size-3.5" />
+      </Link>
     </footer>
   );
 }

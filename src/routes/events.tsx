@@ -1,10 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { useMemo, useState } from "react";
 import { eventsQuery } from "@/lib/queries";
 import { EventCard, formatEventDate } from "@/components/site/EventCard";
 import { SectionHeading } from "@/components/site/SectionHeading";
 import { StaggerGroup, StaggerItem } from "@/components/motion/Motion";
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/events")({
@@ -23,8 +23,23 @@ export const Route = createFileRoute("/events")({
 function EventsPage() {
   const { data: events } = useSuspenseQuery(eventsQuery);
   const [filter, setFilter] = useState("all");
-  const categories = ["all", ...Array.from(new Set(events.map((e) => e.category)))];
-  const shown = filter === "all" ? events : events.filter((e) => e.category === filter);
+  const [showPast, setShowPast] = useState(false);
+
+  const todayIso = useMemo(() => new Date().toISOString().slice(0, 10), []);
+  const upcoming = useMemo(
+    () => events.filter((e) => e.event_date >= todayIso),
+    [events, todayIso],
+  );
+  const past = useMemo(
+    () =>
+      events
+        .filter((e) => e.event_date < todayIso)
+        .sort((a, b) => (a.event_date < b.event_date ? 1 : -1)),
+    [events, todayIso],
+  );
+
+  const categories = ["all", ...Array.from(new Set(upcoming.map((e) => e.category)))];
+  const shown = filter === "all" ? upcoming : upcoming.filter((e) => e.category === filter);
 
   return (
     <div className="mx-auto max-w-7xl px-5 py-16">
@@ -65,7 +80,7 @@ function EventsPage() {
       <section className="mt-24">
         <SectionHeading eyebrow="Timeline" title="The next few weeks at a glance" />
         <ol className="relative mt-10 border-l-2 border-dashed border-border pl-8">
-          {events.slice(0, 8).map((event) => (
+          {upcoming.slice(0, 8).map((event) => (
             <li key={event.id} className="relative pb-9">
               <span className="absolute -left-[2.6rem] top-1 grid size-6 place-items-center rounded-full bg-accent text-accent-foreground">
                 <span className="size-2 rounded-full bg-accent-foreground" />
@@ -79,6 +94,42 @@ function EventsPage() {
           ))}
         </ol>
       </section>
+
+      {/* Suggest / host an event */}
+      <section className="mt-24 rounded-3xl border border-border bg-card p-8 text-center sm:p-12">
+        <SectionHeading
+          eyebrow="Got an idea?"
+          title="Suggest or host your own event"
+          description="Study group, language exchange, a night out — if it helps students settle into Milan, we'll help you make it happen."
+          align="center"
+        />
+        <div className="mt-6 flex justify-center">
+          <Button asChild size="lg" variant="coral">
+            <a href="/contact">Suggest an event</a>
+          </Button>
+        </div>
+      </section>
+
+      {/* Past events archive */}
+      {past.length > 0 && (
+        <section className="mt-24">
+          <div className="flex items-center justify-between">
+            <SectionHeading eyebrow="Archive" title="Past events" />
+            <Button variant="outline" size="sm" onClick={() => setShowPast((v) => !v)}>
+              {showPast ? "Hide" : `Show ${past.length}`}
+            </Button>
+          </div>
+          {showPast && (
+            <StaggerGroup className="mt-10 grid gap-6 opacity-70 sm:grid-cols-2 lg:grid-cols-3">
+              {past.map((event) => (
+                <StaggerItem key={event.id} className="h-full">
+                  <EventCard event={event} />
+                </StaggerItem>
+              ))}
+            </StaggerGroup>
+          )}
+        </section>
+      )}
     </div>
   );
 }

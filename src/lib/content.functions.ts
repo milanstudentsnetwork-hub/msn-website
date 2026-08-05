@@ -50,3 +50,13 @@ export const listListings = createServerFn({ method: "GET" }).handler(async () =
   if (error) throw new Error(error.message);
   return (data ?? []) as ListingRow[];
 });
+
+export const getSiteSettings = createServerFn({ method: "GET" }).handler(async () => {
+  const { getPublicClient } = await import("./supabase-public.server");
+  const { data, error } = await getPublicClient().from("site_settings").select("key, value");
+  if (error) throw new Error(error.message);
+  return Object.fromEntries((data ?? []).map((row) => [row.key, row.value])) as Record<
+    string,
+    string
+  >;
+});

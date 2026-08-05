@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { ArrowRight, HeartHandshake, Home as HomeIcon, PartyPopper, ShieldCheck } from "lucide-react";
-import { eventsQuery, listingsQuery, servicesQuery } from "@/lib/queries";
+import { eventsQuery, listingsQuery, servicesQuery, siteSettingsQuery } from "@/lib/queries";
 import { SectionHeading } from "@/components/site/SectionHeading";
 import { EventCard } from "@/components/site/EventCard";
 import { ListingCard } from "@/components/site/ListingCard";
@@ -16,6 +16,7 @@ export const Route = createFileRoute("/")({
       context.queryClient.ensureQueryData(eventsQuery),
       context.queryClient.ensureQueryData(servicesQuery),
       context.queryClient.ensureQueryData(listingsQuery),
+      context.queryClient.ensureQueryData(siteSettingsQuery),
     ]);
   },
   head: () => ({
@@ -70,6 +71,7 @@ function HomePage() {
   const { data: events } = useSuspenseQuery(eventsQuery);
   const { data: services } = useSuspenseQuery(servicesQuery);
   const { data: listings } = useSuspenseQuery(listingsQuery);
+  const { data: settings } = useSuspenseQuery(siteSettingsQuery);
 
   return (
     <>
@@ -95,31 +97,24 @@ function HomePage() {
             </Reveal>
             <Reveal delay={0.08}>
               <h1 className="mt-6 text-4xl leading-[1.05] font-semibold text-balance sm:text-5xl lg:text-6xl">
-                You just landed in Milan.{" "}
-                <span className="relative inline-block">
-                  <span className="relative z-10">You're not on your own.</span>
-                  <span
-                    aria-hidden
-                    className="absolute inset-x-0 bottom-1 z-0 h-4 rounded-full bg-secondary/70"
-                  />
-                </span>
+                {settings["hero_title"] || "You just landed in Milan. You're not on your own."}
               </h1>
             </Reveal>
             <Reveal delay={0.16}>
               <p className="mt-6 max-w-xl text-lg text-pretty text-muted-foreground">
-                Milan Students Network is a student-run community helping internationals find safe
-                rooms, real friends and a way through Italian paperwork — without the panic.
+                {settings["hero_subtitle"] ||
+                  "Milan Students Network is a student-run community helping internationals find safe rooms, real friends and a way through Italian paperwork — without the panic."}
               </p>
             </Reveal>
             <Reveal delay={0.24}>
               <div className="mt-9 flex flex-wrap gap-3">
                 <Button asChild size="xl" variant="coral">
                   <Link to="/accommodation">
-                    Find a room <ArrowRight className="size-4" />
+                    {settings["hero_cta_primary"] || "Find a room"} <ArrowRight className="size-4" />
                   </Link>
                 </Button>
                 <Button asChild size="xl" variant="outline">
-                  <Link to="/events">See what's on</Link>
+                  <Link to="/events">{settings["hero_cta_secondary"] || "See what's on"}</Link>
                 </Button>
               </div>
             </Reveal>
