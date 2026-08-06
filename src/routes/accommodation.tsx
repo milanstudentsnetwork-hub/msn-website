@@ -36,6 +36,14 @@ const safetyTips = [
   "Send money by bank transfer only. No crypto, no gift cards, no Western Union.",
 ];
 
+/** Convert a snake_case DB value like "private_room" to "Private Room" */
+function formatLabel(value: string) {
+  return value
+    .split("_")
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
+}
+
 function AccommodationPage() {
   const { data: listings } = useSuspenseQuery(listingsQuery);
   const { data: settings } = useSuspenseQuery(siteSettingsQuery);
@@ -92,7 +100,7 @@ function AccommodationPage() {
             >
               {roomTypes.map((type) => (
                 <option key={type} value={type}>
-                  {type}
+                  {type === "all" ? "All" : formatLabel(type)}
                 </option>
               ))}
             </select>

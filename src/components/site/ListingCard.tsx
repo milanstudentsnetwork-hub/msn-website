@@ -2,6 +2,14 @@ import { BedDouble, Euro, Home, MapPin, ShieldCheck, Sparkles } from "lucide-rea
 import type { ListingRow } from "@/lib/content.functions";
 import roomPlaceholder from "@/assets/room-placeholder.jpg";
 
+/** Convert a snake_case DB value like "private_room" to "Private Room" */
+function formatLabel(value: string) {
+  return value
+    .split("_")
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
+}
+
 export function ListingCard({ listing }: { listing: ListingRow }) {
   const cover = listing.images?.[0] ?? roomPlaceholder;
 
@@ -14,8 +22,8 @@ export function ListingCard({ listing }: { listing: ListingRow }) {
           loading="lazy"
           className="size-full object-cover transition-transform duration-700 group-hover:scale-105"
         />
-        <span className="absolute left-4 top-4 rounded-full bg-card/95 px-3 py-1 text-xs font-bold capitalize shadow-soft">
-          {listing.room_type}
+        <span className="absolute left-4 top-4 rounded-full bg-card/95 px-3 py-1 text-xs font-bold shadow-soft">
+          {formatLabel(listing.room_type)}
         </span>
         {listing.is_featured && (
           <span className="absolute right-4 top-4 inline-flex items-center gap-1 rounded-full bg-secondary px-3 py-1 text-xs font-bold text-secondary-foreground shadow-soft">
