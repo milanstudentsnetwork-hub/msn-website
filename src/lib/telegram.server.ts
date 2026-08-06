@@ -32,6 +32,52 @@ function escapeHtml(value: string): string {
   return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
+// Public t.me links only (t.me/YourChannel) — private invite links (t.me/+hash)
+// can't be used as a chat_id for bot-initiated posts.
+function extractChannelChatId(channelUrl: string): string | null {
+  const match = channelUrl.match(/t\.me\/([a-zA-Z0-9_]+)\/?$/);
+  return match ? `@${match[1]}` : null;
+}
+
+export async function notifyTelegramChannel(channelUrl: string, text: string, photoUrl?: string) {
+  const token = process.env["TELEGRAM_BOT_TOKEN"];
+  if (!token) {
+    console.error("[telegram] Missing TELEGRAM_BOT_TOKEN, skipping channel post");
+    return;
+  }
+  const chatId = extractChannelChatId(channelUrl);
+  if (!chatId) {
+    console.error("[telegram] Could not derive a public @channel from", channelUrl);
+    return;
+  }
+
+  const useSendPhoto = Boolean(photoUrl);
+  const endpoint = useSendPhoto ? "sendPhoto" : "sendMessage";
+  const body = useSendPhoto
+    ? { chat_id: chatId, photo: photoUrl, caption: text, parse_mode: "HTML" }
+    : { chat_id: chatId, text, parse_mode: "HTML", disable_web_page_preview: true };
+
+  const res = await fetch(`https://api.telegram.org/bot${token}/${endpoint}`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    console.error("[telegram] channel post failed", res.status, await res.text());
+  }
+}
+
+export function formatListingAnnouncement(listing: ListingRow): string {
+  const description =
+    listing.description.length > 300 ? `${listing.description.slice(0, 300)}…` : listing.description;
+  return (
+    `🏠 <b>New listing: ${escapeHtml(listing.title)}</b>\n\n` +
+    `€${listing.price}/${listing.price_period} — ${escapeHtml(listing.neighborhood)} (${escapeHtml(listing.room_type)})\n\n` +
+    `${escapeHtml(description)}\n\n` +
+    `Full details: ${SITE_URL}/accommodation`
+  );
+}
+
 function formatEventDate(dateStr: string): string {
   return new Date(`${dateStr}T00:00:00`).toLocaleDateString("en-GB", {
     weekday: "short",

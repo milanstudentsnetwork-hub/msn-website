@@ -220,11 +220,44 @@ export const adminUpdateListing = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => listingUpdateSchema.parse(data))
   .handler(async ({ context, data }) => {
     const { id, ...rest } = data;
-    const { error } = await context.supabase
+
+    let previousStatus: string | null = null;
+    if (rest.status === "published") {
+      const { data: existing } = await context.supabase
+        .from("accommodation_listings")
+        .select("status")
+        .eq("id", id)
+        .maybeSingle();
+      previousStatus = existing?.status ?? null;
+    }
+
+    const { data: updated, error } = await context.supabase
       .from("accommodation_listings")
       .update(stripUndefined(rest) as ListingUpdate)
-      .eq("id", id);
+      .eq("id", id)
+      .select()
+      .single();
     if (error) throw new Error(error.message);
+
+    // Only announce the pending/approved/rejected -> published transition,
+    // never re-fire on later edits to an already-published listing.
+    if (rest.status === "published" && previousStatus !== "published") {
+      const { data: setting } = await context.supabase
+        .from("site_settings")
+        .select("value")
+        .eq("key", "telegram_accommodation_url")
+        .maybeSingle();
+      const channelUrl = setting?.value;
+      if (channelUrl) {
+        const { notifyTelegramChannel, formatListingAnnouncement } = await import(
+          "./telegram.server"
+        );
+        const listing = updated as ListingRow;
+        const photo = listing.images.length > 0 ? listing.images[0] : undefined;
+        await notifyTelegramChannel(channelUrl, formatListingAnnouncement(listing), photo);
+      }
+    }
+
     return { ok: true as const };
   });
 
