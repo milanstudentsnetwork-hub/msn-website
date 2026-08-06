@@ -1,6 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Facebook, Instagram, Linkedin, Lock, Mail, MessageCircle, Send, Youtube } from "lucide-react";
+import { Bot, Facebook, Instagram, Linkedin, Lock, Mail, MessageCircle, Send, Youtube } from "lucide-react";
 import { siteSettingsQuery } from "@/lib/queries";
 import logo from "@/assets/logo-header.png";
 
@@ -116,7 +116,7 @@ export function SiteFooter() {
                 aria-label="Telegram bot"
                 className="press grid size-11 place-items-center rounded-full bg-primary-foreground/10 transition-colors hover:bg-accent"
               >
-                <Send className="size-5 -rotate-45" />
+                <Bot className="size-5" />
               </a>
             )}
           </div>
