@@ -1,6 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Instagram, Lock, Mail, MessageCircle } from "lucide-react";
+import { Facebook, Instagram, Linkedin, Lock, Mail, MessageCircle, Send, Youtube } from "lucide-react";
 import { siteSettingsQuery } from "@/lib/queries";
 import logo from "@/assets/logo-header.png";
 
@@ -8,8 +8,13 @@ export function SiteFooter() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { data: settings } = useQuery(siteSettingsQuery);
   const email = settings?.["contact_email"] || "hello@milanstudents.network";
-  const instagramUrl = settings?.["instagram_url"] || "https://instagram.com";
+  const instagramUrl = settings?.["instagram_url"] || "https://www.instagram.com/milan_students_network/";
+  const facebookUrl = settings?.["facebook_url"] || "https://www.facebook.com/profile.php?id=61591704673293";
+  const linkedinUrl = settings?.["linkedin_url"] || "https://www.linkedin.com/company/milan-students-network";
+  const youtubeUrl = settings?.["youtube_url"] || "https://www.youtube.com/channel/UCazDSeg5TvKbSTgF2i7eNug";
   const whatsappUrl = settings?.["whatsapp_url"] || "https://t.me";
+  const telegramGroupUrl = settings?.["telegram_group_url"];
+  const telegramBotUrl = settings?.["telegram_bot_url"];
 
   if (pathname.startsWith("/admin-portal")) return null;
 
@@ -57,6 +62,33 @@ export function SiteFooter() {
               <Instagram className="size-5" />
             </a>
             <a
+              href={facebookUrl}
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Facebook"
+              className="press grid size-11 place-items-center rounded-full bg-primary-foreground/10 transition-colors hover:bg-accent"
+            >
+              <Facebook className="size-5" />
+            </a>
+            <a
+              href={linkedinUrl}
+              target="_blank"
+              rel="noreferrer"
+              aria-label="LinkedIn"
+              className="press grid size-11 place-items-center rounded-full bg-primary-foreground/10 transition-colors hover:bg-accent"
+            >
+              <Linkedin className="size-5" />
+            </a>
+            <a
+              href={youtubeUrl}
+              target="_blank"
+              rel="noreferrer"
+              aria-label="YouTube"
+              className="press grid size-11 place-items-center rounded-full bg-primary-foreground/10 transition-colors hover:bg-accent"
+            >
+              <Youtube className="size-5" />
+            </a>
+            <a
               href={whatsappUrl}
               target="_blank"
               rel="noreferrer"
@@ -65,6 +97,28 @@ export function SiteFooter() {
             >
               <MessageCircle className="size-5" />
             </a>
+            {telegramGroupUrl && (
+              <a
+                href={telegramGroupUrl}
+                target="_blank"
+                rel="noreferrer"
+                aria-label="Telegram group"
+                className="press grid size-11 place-items-center rounded-full bg-primary-foreground/10 transition-colors hover:bg-accent"
+              >
+                <Send className="size-5" />
+              </a>
+            )}
+            {telegramBotUrl && (
+              <a
+                href={telegramBotUrl}
+                target="_blank"
+                rel="noreferrer"
+                aria-label="Telegram bot"
+                className="press grid size-11 place-items-center rounded-full bg-primary-foreground/10 transition-colors hover:bg-accent"
+              >
+                <Send className="size-5 -rotate-45" />
+              </a>
+            )}
           </div>
         </div>
 

@@ -20,7 +20,18 @@ export const Route = createFileRoute("/admin-portal/settings")({
 const groups: { title: string; keys: string[] }[] = [
   { title: "Homepage Hero", keys: ["hero_title", "hero_subtitle", "hero_cta_primary", "hero_cta_secondary"] },
   { title: "Contact Info", keys: ["contact_email", "contact_phone", "whatsapp_url"] },
-  { title: "Social Links", keys: ["instagram_url", "tiktok_url", "linkedin_url"] },
+  {
+    title: "Social Links",
+    keys: [
+      "instagram_url",
+      "facebook_url",
+      "linkedin_url",
+      "youtube_url",
+      "tiktok_url",
+      "telegram_group_url",
+      "telegram_bot_url",
+    ],
+  },
 ];
 
 const labels: Record<string, string> = {
@@ -32,9 +43,15 @@ const labels: Record<string, string> = {
   contact_phone: "Contact phone",
   whatsapp_url: "WhatsApp link",
   instagram_url: "Instagram link",
-  tiktok_url: "TikTok link",
+  facebook_url: "Facebook link",
   linkedin_url: "LinkedIn link",
+  youtube_url: "YouTube link",
+  tiktok_url: "TikTok link",
+  telegram_group_url: "Telegram group link",
+  telegram_bot_url: "Telegram bot link",
 };
+
+const allKeys = groups.flatMap((g) => g.keys);
 
 const longFields = new Set(["hero_subtitle"]);
 
@@ -50,7 +67,8 @@ function SettingsAdminPage() {
     (async () => {
       try {
         const settings = await listFn();
-        setValues(Object.fromEntries(settings.map((s) => [s.key, s.value])));
+        const base = Object.fromEntries(allKeys.map((key) => [key, ""]));
+        setValues({ ...base, ...Object.fromEntries(settings.map((s) => [s.key, s.value])) });
       } catch {
         toast.error("Couldn't load settings.");
       } finally {
