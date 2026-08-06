@@ -25,6 +25,7 @@ import { Route as AdminPortalMessagesRouteImport } from './routes/admin-portal/m
 import { Route as AdminPortalRequestsRouteImport } from './routes/admin-portal/requests'
 import { Route as AdminPortalServicesRouteImport } from './routes/admin-portal/services'
 import { Route as AdminPortalSettingsRouteImport } from './routes/admin-portal/settings'
+import { Route as ApiTelegramWebhookRouteImport } from './routes/api/telegram-webhook'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -107,6 +108,11 @@ const AdminPortalSettingsRoute = AdminPortalSettingsRouteImport.update({
   path: '/admin-portal/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiTelegramWebhookRoute = ApiTelegramWebhookRouteImport.update({
+  id: '/api/telegram-webhook',
+  path: '/api/telegram-webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -124,6 +130,7 @@ export interface FileRoutesByFullPath {
   '/admin-portal/requests': typeof AdminPortalRequestsRoute
   '/admin-portal/services': typeof AdminPortalServicesRoute
   '/admin-portal/settings': typeof AdminPortalSettingsRoute
+  '/api/telegram-webhook': typeof ApiTelegramWebhookRoute
   '/admin-portal/': typeof AdminPortalIndexRoute
 }
 export interface FileRoutesByTo {
@@ -142,6 +149,7 @@ export interface FileRoutesByTo {
   '/admin-portal/requests': typeof AdminPortalRequestsRoute
   '/admin-portal/services': typeof AdminPortalServicesRoute
   '/admin-portal/settings': typeof AdminPortalSettingsRoute
+  '/api/telegram-webhook': typeof ApiTelegramWebhookRoute
   '/admin-portal': typeof AdminPortalIndexRoute
 }
 export interface FileRoutesById {
@@ -161,6 +169,7 @@ export interface FileRoutesById {
   '/admin-portal/requests': typeof AdminPortalRequestsRoute
   '/admin-portal/services': typeof AdminPortalServicesRoute
   '/admin-portal/settings': typeof AdminPortalSettingsRoute
+  '/api/telegram-webhook': typeof ApiTelegramWebhookRoute
   '/admin-portal/': typeof AdminPortalIndexRoute
 }
 export interface FileRouteTypes {
@@ -181,6 +190,7 @@ export interface FileRouteTypes {
     | '/admin-portal/requests'
     | '/admin-portal/services'
     | '/admin-portal/settings'
+    | '/api/telegram-webhook'
     | '/admin-portal/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -199,6 +209,7 @@ export interface FileRouteTypes {
     | '/admin-portal/requests'
     | '/admin-portal/services'
     | '/admin-portal/settings'
+    | '/api/telegram-webhook'
     | '/admin-portal'
   id:
     | '__root__'
@@ -217,6 +228,7 @@ export interface FileRouteTypes {
     | '/admin-portal/requests'
     | '/admin-portal/services'
     | '/admin-portal/settings'
+    | '/api/telegram-webhook'
     | '/admin-portal/'
   fileRoutesById: FileRoutesById
 }
@@ -236,6 +248,7 @@ export interface RootRouteChildren {
   AdminPortalRequestsRoute: typeof AdminPortalRequestsRoute
   AdminPortalServicesRoute: typeof AdminPortalServicesRoute
   AdminPortalSettingsRoute: typeof AdminPortalSettingsRoute
+  ApiTelegramWebhookRoute: typeof ApiTelegramWebhookRoute
   AdminPortalIndexRoute: typeof AdminPortalIndexRoute
 }
 
@@ -353,6 +366,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminPortalSettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/telegram-webhook': {
+      id: '/api/telegram-webhook'
+      path: '/api/telegram-webhook'
+      fullPath: '/api/telegram-webhook'
+      preLoaderRoute: typeof ApiTelegramWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -372,6 +392,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminPortalRequestsRoute: AdminPortalRequestsRoute,
   AdminPortalServicesRoute: AdminPortalServicesRoute,
   AdminPortalSettingsRoute: AdminPortalSettingsRoute,
+  ApiTelegramWebhookRoute: ApiTelegramWebhookRoute,
   AdminPortalIndexRoute: AdminPortalIndexRoute,
 }
 export const routeTree = rootRouteImport

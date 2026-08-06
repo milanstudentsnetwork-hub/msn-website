@@ -32,6 +32,10 @@ const groups: { title: string; keys: string[] }[] = [
       "telegram_bot_url",
     ],
   },
+  {
+    title: "Accommodation Groups",
+    keys: ["telegram_accommodation_url", "whatsapp_accommodation_url"],
+  },
 ];
 
 const labels: Record<string, string> = {
@@ -49,6 +53,8 @@ const labels: Record<string, string> = {
   tiktok_url: "TikTok link",
   telegram_group_url: "Telegram group link",
   telegram_bot_url: "Telegram bot link",
+  telegram_accommodation_url: "Telegram accommodation group link",
+  whatsapp_accommodation_url: "WhatsApp accommodation group link",
 };
 
 const allKeys = groups.flatMap((g) => g.keys);

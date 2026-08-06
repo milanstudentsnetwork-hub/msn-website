@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { Search, ShieldAlert } from "lucide-react";
-import { listingsQuery } from "@/lib/queries";
+import { Search, Send, ShieldAlert } from "lucide-react";
+import { listingsQuery, siteSettingsQuery } from "@/lib/queries";
 import { ListingCard } from "@/components/site/ListingCard";
 import { SectionHeading } from "@/components/site/SectionHeading";
 import { ListingSubmissionForm } from "@/components/accommodation/ListingSubmissionForm";
@@ -13,7 +13,11 @@ import { Label } from "@/components/ui/label";
 import milanMap from "@/assets/milan-map.jpg";
 
 export const Route = createFileRoute("/accommodation")({
-  loader: ({ context }) => context.queryClient.ensureQueryData(listingsQuery),
+  loader: ({ context }) =>
+    Promise.all([
+      context.queryClient.ensureQueryData(listingsQuery),
+      context.queryClient.ensureQueryData(siteSettingsQuery),
+    ]),
   head: () => ({
     meta: [
       { title: "Student Accommodation in Milan | Milan Students Network" },
@@ -34,6 +38,9 @@ const safetyTips = [
 
 function AccommodationPage() {
   const { data: listings } = useSuspenseQuery(listingsQuery);
+  const { data: settings } = useSuspenseQuery(siteSettingsQuery);
+  const telegramAccommodationUrl = settings["telegram_accommodation_url"];
+  const whatsappAccommodationUrl = settings["whatsapp_accommodation_url"];
   const [query, setQuery] = useState("");
   const [maxPrice, setMaxPrice] = useState(2000);
   const [roomType, setRoomType] = useState("all");
@@ -118,6 +125,31 @@ function AccommodationPage() {
         <p className="mt-16 text-center text-muted-foreground">
           No rooms match those filters yet. Try widening your budget.
         </p>
+      )}
+
+      {(telegramAccommodationUrl || whatsappAccommodationUrl) && (
+        <Reveal className="mt-10 rounded-3xl border border-border bg-card p-6 text-center shadow-soft">
+          <p className="font-display font-semibold">Want new rooms the moment they're posted?</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Join our accommodation group for real-time listings.
+          </p>
+          <div className="mt-4 flex flex-wrap justify-center gap-3">
+            {telegramAccommodationUrl && (
+              <Button asChild variant="outline" size="sm">
+                <a href={telegramAccommodationUrl} target="_blank" rel="noreferrer">
+                  <Send className="size-4" /> Telegram
+                </a>
+              </Button>
+            )}
+            {whatsappAccommodationUrl && (
+              <Button asChild variant="outline" size="sm">
+                <a href={whatsappAccommodationUrl} target="_blank" rel="noreferrer">
+                  WhatsApp
+                </a>
+              </Button>
+            )}
+          </div>
+        </Reveal>
       )}
 
       <section className="mt-24 grid items-center gap-10 lg:grid-cols-2">
