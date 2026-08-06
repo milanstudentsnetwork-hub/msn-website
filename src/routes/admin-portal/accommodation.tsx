@@ -162,6 +162,7 @@ function AccommodationAdminPage() {
             <TableRow>
               <TableHead>Title</TableHead>
               <TableHead>Source</TableHead>
+              <TableHead>Contact</TableHead>
               <TableHead>Price</TableHead>
               <TableHead>Neighborhood</TableHead>
               <TableHead>Status</TableHead>
@@ -172,13 +173,13 @@ function AccommodationAdminPage() {
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center text-muted-foreground">
+                <TableCell colSpan={8} className="text-center text-muted-foreground">
                   Loading…
                 </TableCell>
               </TableRow>
             ) : filtered.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center text-muted-foreground">
+                <TableCell colSpan={8} className="text-center text-muted-foreground">
                   No listings here.
                 </TableCell>
               </TableRow>
@@ -191,12 +192,16 @@ function AccommodationAdminPage() {
                       {listing.listing_source === "landlord" ? "Landlord/Agency" : "Student Upload"}
                     </Badge>
                   </TableCell>
-                  <TableCell>€{listing.price}</TableCell>
+                  <TableCell className="text-xs">
+                    <p>{listing.contact_name}</p>
+                    <p className="text-muted-foreground">{listing.contact_phone || listing.contact_email}</p>
+                  </TableCell>
+                  <TableCell>{listing.rent_range || `€${listing.price}`}</TableCell>
                   <TableCell>{listing.neighborhood}</TableCell>
                   <TableCell>
                     <Badge
                       variant={
-                        listing.status === "published"
+                        listing.status === "published" || listing.status === "matched"
                           ? "default"
                           : listing.status === "rejected"
                             ? "destructive"
@@ -244,8 +249,28 @@ function AccommodationAdminPage() {
                       </>
                     )}
                     {listing.status === "published" && (
-                      <Button size="sm" variant="ghost" onClick={() => handleSetStatus(listing.id, "approved")}>
-                        Unpublish
+                      <>
+                        <Button size="sm" variant="ghost" onClick={() => handleSetStatus(listing.id, "matched")}>
+                          Mark Matched
+                        </Button>
+                        <Button size="sm" variant="ghost" onClick={() => handleSetStatus(listing.id, "approved")}>
+                          Unpublish
+                        </Button>
+                      </>
+                    )}
+                    {listing.status === "matched" && (
+                      <>
+                        <Button size="sm" variant="ghost" onClick={() => handleSetStatus(listing.id, "published")}>
+                          Back to Published
+                        </Button>
+                        <Button size="sm" variant="ghost" onClick={() => handleSetStatus(listing.id, "closed")}>
+                          Close
+                        </Button>
+                      </>
+                    )}
+                    {listing.status === "closed" && (
+                      <Button size="sm" variant="ghost" onClick={() => handleSetStatus(listing.id, "published")}>
+                        Reopen
                       </Button>
                     )}
                     {listing.status === "rejected" && (

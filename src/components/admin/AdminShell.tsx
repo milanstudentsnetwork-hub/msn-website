@@ -9,7 +9,8 @@ const tabs = [
   { to: "/admin-portal/services", label: "Services" },
   { to: "/admin-portal/faqs", label: "FAQs" },
   { to: "/admin-portal/accommodation", label: "Accommodation" },
-  { to: "/admin-portal/requests", label: "Requests" },
+  { to: "/admin-portal/accommodation-requests", label: "Room Requests" },
+  { to: "/admin-portal/requests", label: "Service Requests" },
   { to: "/admin-portal/messages", label: "Messages" },
   { to: "/admin-portal/settings", label: "Settings" },
 ] as const;

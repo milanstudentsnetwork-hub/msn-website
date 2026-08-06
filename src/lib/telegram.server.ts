@@ -67,12 +67,39 @@ export async function notifyTelegramChannel(channelUrl: string, text: string, ph
   }
 }
 
+const ROOM_TYPE_LABEL: Record<string, string> = {
+  studio: "Studio / Monolocale",
+  single_shared_flat: "Single room in a shared flat",
+  shared_bed: "Shared bed space",
+};
+
+const GENDER_LABEL: Record<string, string> = {
+  male_only: "Male only",
+  female_only: "Female only",
+  no_preference: "No gender preference",
+};
+
 export function formatListingAnnouncement(listing: ListingRow): string {
+  const price = listing.rent_range || `€${listing.price}/${listing.price_period}`;
+  const roomType = ROOM_TYPE_LABEL[listing.room_type] ?? listing.room_type;
   const description =
     listing.description.length > 300 ? `${listing.description.slice(0, 300)}…` : listing.description;
+
+  const details = [
+    `💶 ${price}`,
+    `🚪 ${roomType}`,
+    listing.gender_preference && GENDER_LABEL[listing.gender_preference]
+      ? `🚻 ${GENDER_LABEL[listing.gender_preference]}`
+      : null,
+    `👥 Up to ${listing.max_roommates} sharing`,
+  ]
+    .filter(Boolean)
+    .join("\n");
+
   return (
     `🏠 <b>New listing: ${escapeHtml(listing.title)}</b>\n\n` +
-    `€${listing.price}/${listing.price_period} — ${escapeHtml(listing.neighborhood)} (${escapeHtml(listing.room_type)})\n\n` +
+    `📍 ${escapeHtml(listing.neighborhood)}\n` +
+    `${details}\n\n` +
     `${escapeHtml(description)}\n\n` +
     `Full details: ${SITE_URL}/accommodation`
   );

@@ -18,6 +18,7 @@ import { Route as FaqRouteImport } from './routes/faq'
 import { Route as ServicesRouteImport } from './routes/services'
 import { Route as AdminPortalIndexRouteImport } from './routes/admin-portal/index'
 import { Route as AdminPortalAccommodationRouteImport } from './routes/admin-portal/accommodation'
+import { Route as AdminPortalAccommodationRequestsRouteImport } from './routes/admin-portal/accommodation-requests'
 import { Route as AdminPortalEventsRouteImport } from './routes/admin-portal/events'
 import { Route as AdminPortalFaqsRouteImport } from './routes/admin-portal/faqs'
 import { Route as AdminPortalLoginRouteImport } from './routes/admin-portal/login'
@@ -73,6 +74,12 @@ const AdminPortalAccommodationRoute =
     path: '/admin-portal/accommodation',
     getParentRoute: () => rootRouteImport,
   } as any)
+const AdminPortalAccommodationRequestsRoute =
+  AdminPortalAccommodationRequestsRouteImport.update({
+    id: '/admin-portal/accommodation-requests',
+    path: '/admin-portal/accommodation-requests',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AdminPortalEventsRoute = AdminPortalEventsRouteImport.update({
   id: '/admin-portal/events',
   path: '/admin-portal/events',
@@ -123,6 +130,7 @@ export interface FileRoutesByFullPath {
   '/faq': typeof FaqRoute
   '/services': typeof ServicesRoute
   '/admin-portal/accommodation': typeof AdminPortalAccommodationRoute
+  '/admin-portal/accommodation-requests': typeof AdminPortalAccommodationRequestsRoute
   '/admin-portal/events': typeof AdminPortalEventsRoute
   '/admin-portal/faqs': typeof AdminPortalFaqsRoute
   '/admin-portal/login': typeof AdminPortalLoginRoute
@@ -142,6 +150,7 @@ export interface FileRoutesByTo {
   '/faq': typeof FaqRoute
   '/services': typeof ServicesRoute
   '/admin-portal/accommodation': typeof AdminPortalAccommodationRoute
+  '/admin-portal/accommodation-requests': typeof AdminPortalAccommodationRequestsRoute
   '/admin-portal/events': typeof AdminPortalEventsRoute
   '/admin-portal/faqs': typeof AdminPortalFaqsRoute
   '/admin-portal/login': typeof AdminPortalLoginRoute
@@ -162,6 +171,7 @@ export interface FileRoutesById {
   '/faq': typeof FaqRoute
   '/services': typeof ServicesRoute
   '/admin-portal/accommodation': typeof AdminPortalAccommodationRoute
+  '/admin-portal/accommodation-requests': typeof AdminPortalAccommodationRequestsRoute
   '/admin-portal/events': typeof AdminPortalEventsRoute
   '/admin-portal/faqs': typeof AdminPortalFaqsRoute
   '/admin-portal/login': typeof AdminPortalLoginRoute
@@ -183,6 +193,7 @@ export interface FileRouteTypes {
     | '/faq'
     | '/services'
     | '/admin-portal/accommodation'
+    | '/admin-portal/accommodation-requests'
     | '/admin-portal/events'
     | '/admin-portal/faqs'
     | '/admin-portal/login'
@@ -202,6 +213,7 @@ export interface FileRouteTypes {
     | '/faq'
     | '/services'
     | '/admin-portal/accommodation'
+    | '/admin-portal/accommodation-requests'
     | '/admin-portal/events'
     | '/admin-portal/faqs'
     | '/admin-portal/login'
@@ -221,6 +233,7 @@ export interface FileRouteTypes {
     | '/faq'
     | '/services'
     | '/admin-portal/accommodation'
+    | '/admin-portal/accommodation-requests'
     | '/admin-portal/events'
     | '/admin-portal/faqs'
     | '/admin-portal/login'
@@ -241,6 +254,7 @@ export interface RootRouteChildren {
   FaqRoute: typeof FaqRoute
   ServicesRoute: typeof ServicesRoute
   AdminPortalAccommodationRoute: typeof AdminPortalAccommodationRoute
+  AdminPortalAccommodationRequestsRoute: typeof AdminPortalAccommodationRequestsRoute
   AdminPortalEventsRoute: typeof AdminPortalEventsRoute
   AdminPortalFaqsRoute: typeof AdminPortalFaqsRoute
   AdminPortalLoginRoute: typeof AdminPortalLoginRoute
@@ -317,6 +331,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminPortalAccommodationRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin-portal/accommodation-requests': {
+      id: '/admin-portal/accommodation-requests'
+      path: '/admin-portal/accommodation-requests'
+      fullPath: '/admin-portal/accommodation-requests'
+      preLoaderRoute: typeof AdminPortalAccommodationRequestsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin-portal/events': {
       id: '/admin-portal/events'
       path: '/admin-portal/events'
@@ -385,6 +406,7 @@ const rootRouteChildren: RootRouteChildren = {
   FaqRoute: FaqRoute,
   ServicesRoute: ServicesRoute,
   AdminPortalAccommodationRoute: AdminPortalAccommodationRoute,
+  AdminPortalAccommodationRequestsRoute: AdminPortalAccommodationRequestsRoute,
   AdminPortalEventsRoute: AdminPortalEventsRoute,
   AdminPortalFaqsRoute: AdminPortalFaqsRoute,
   AdminPortalLoginRoute: AdminPortalLoginRoute,

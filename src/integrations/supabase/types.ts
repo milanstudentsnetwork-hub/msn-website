@@ -16,10 +16,12 @@ export type Database = {
     Tables: {
       accommodation_listings: {
         Row: {
+          additional_notes: string | null
           address_note: string | null
           admin_notes: string | null
           amenities: string[]
           available_from: string | null
+          available_now: boolean
           available_until: string | null
           bathrooms: number | null
           bedrooms: number | null
@@ -27,16 +29,29 @@ export type Database = {
           contact_email: string
           contact_name: string
           contact_phone: string | null
+          contract_notes: string | null
+          contract_status: string
           created_at: string
           description: string
+          first_name: string
           furnished: boolean
+          gender_preference: string
           id: string
           images: string[]
           is_featured: boolean
+          is_modern: boolean | null
+          last_name: string
+          latitude: number | null
           listing_source: Database["public"]["Enums"]["listing_source"]
+          location_description: string
+          long_term: boolean
+          longitude: number | null
+          max_roommates: string
           neighborhood: string
+          photo_consent: boolean
           price: number
           price_period: string
+          rent_range: string
           room_type: string
           size_sqm: number | null
           status: Database["public"]["Enums"]["listing_status"]
@@ -45,10 +60,12 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          additional_notes?: string | null
           address_note?: string | null
           admin_notes?: string | null
           amenities?: string[]
           available_from?: string | null
+          available_now?: boolean
           available_until?: string | null
           bathrooms?: number | null
           bedrooms?: number | null
@@ -56,16 +73,29 @@ export type Database = {
           contact_email?: string
           contact_name?: string
           contact_phone?: string | null
+          contract_notes?: string | null
+          contract_status?: string
           created_at?: string
           description?: string
+          first_name?: string
           furnished?: boolean
+          gender_preference?: string
           id?: string
           images?: string[]
           is_featured?: boolean
+          is_modern?: boolean | null
+          last_name?: string
+          latitude?: number | null
           listing_source?: Database["public"]["Enums"]["listing_source"]
+          location_description?: string
+          long_term?: boolean
+          longitude?: number | null
+          max_roommates?: string
           neighborhood?: string
+          photo_consent?: boolean
           price?: number
           price_period?: string
+          rent_range?: string
           room_type?: string
           size_sqm?: number | null
           status?: Database["public"]["Enums"]["listing_status"]
@@ -74,10 +104,12 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          additional_notes?: string | null
           address_note?: string | null
           admin_notes?: string | null
           amenities?: string[]
           available_from?: string | null
+          available_now?: boolean
           available_until?: string | null
           bathrooms?: number | null
           bedrooms?: number | null
@@ -85,21 +117,100 @@ export type Database = {
           contact_email?: string
           contact_name?: string
           contact_phone?: string | null
+          contract_notes?: string | null
+          contract_status?: string
           created_at?: string
           description?: string
+          first_name?: string
           furnished?: boolean
+          gender_preference?: string
           id?: string
           images?: string[]
           is_featured?: boolean
+          is_modern?: boolean | null
+          last_name?: string
+          latitude?: number | null
           listing_source?: Database["public"]["Enums"]["listing_source"]
+          location_description?: string
+          long_term?: boolean
+          longitude?: number | null
+          max_roommates?: string
           neighborhood?: string
+          photo_consent?: boolean
           price?: number
           price_period?: string
+          rent_range?: string
           room_type?: string
           size_sqm?: number | null
           status?: Database["public"]["Enums"]["listing_status"]
           students_only?: boolean
           title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      accommodation_requests: {
+        Row: {
+          budget_range: string
+          created_at: string
+          date_from: string | null
+          date_until: string | null
+          email: string
+          first_name: string
+          gender: string
+          id: string
+          last_name: string
+          location_preferences: string
+          max_roommates: string
+          move_immediately: boolean
+          needs_contract: boolean
+          notes: string | null
+          phone: string
+          room_type: string
+          status: Database["public"]["Enums"]["request_pipeline_status"]
+          stay_type: string
+          updated_at: string
+        }
+        Insert: {
+          budget_range?: string
+          created_at?: string
+          date_from?: string | null
+          date_until?: string | null
+          email: string
+          first_name: string
+          gender?: string
+          id?: string
+          last_name: string
+          location_preferences?: string
+          max_roommates?: string
+          move_immediately?: boolean
+          needs_contract?: boolean
+          notes?: string | null
+          phone: string
+          room_type?: string
+          status?: Database["public"]["Enums"]["request_pipeline_status"]
+          stay_type?: string
+          updated_at?: string
+        }
+        Update: {
+          budget_range?: string
+          created_at?: string
+          date_from?: string | null
+          date_until?: string | null
+          email?: string
+          first_name?: string
+          gender?: string
+          id?: string
+          last_name?: string
+          location_preferences?: string
+          max_roommates?: string
+          move_immediately?: boolean
+          needs_contract?: boolean
+          notes?: string | null
+          phone?: string
+          room_type?: string
+          status?: Database["public"]["Enums"]["request_pipeline_status"]
+          stay_type?: string
           updated_at?: string
         }
         Relationships: []
@@ -412,7 +523,14 @@ export type Database = {
       app_role: "admin" | "editor"
       content_status: "draft" | "published"
       listing_source: "landlord" | "student_upload"
-      listing_status: "pending" | "approved" | "rejected" | "published"
+      listing_status:
+        | "pending"
+        | "approved"
+        | "rejected"
+        | "published"
+        | "matched"
+        | "closed"
+      request_pipeline_status: "new" | "under_review" | "matched" | "closed"
       request_status:
         | "new"
         | "contacted"
@@ -551,7 +669,15 @@ export const Constants = {
       app_role: ["admin", "editor"],
       content_status: ["draft", "published"],
       listing_source: ["landlord", "student_upload"],
-      listing_status: ["pending", "approved", "rejected", "published"],
+      listing_status: [
+        "pending",
+        "approved",
+        "rejected",
+        "published",
+        "matched",
+        "closed",
+      ],
+      request_pipeline_status: ["new", "under_review", "matched", "closed"],
       request_status: [
         "new",
         "contacted",

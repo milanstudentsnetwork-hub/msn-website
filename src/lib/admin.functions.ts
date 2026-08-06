@@ -12,6 +12,8 @@ type MessageRow = Database["public"]["Tables"]["contact_messages"]["Row"];
 type SettingRow = Database["public"]["Tables"]["site_settings"]["Row"];
 type ListingUpdate = Database["public"]["Tables"]["accommodation_listings"]["Update"];
 type RequestUpdate = Database["public"]["Tables"]["service_requests"]["Update"];
+type AccommodationRequestRow = Database["public"]["Tables"]["accommodation_requests"]["Row"];
+type AccommodationRequestUpdate = Database["public"]["Tables"]["accommodation_requests"]["Update"];
 
 // Drops explicit `undefined` values (as opposed to omitted keys) so partial
 // update payloads satisfy exactOptionalPropertyTypes against Supabase's
@@ -200,7 +202,9 @@ const listingUpdateSchema = z.object({
   neighborhood: z.string().trim().max(120).optional(),
   room_type: z.string().trim().max(60).optional(),
   is_featured: z.boolean().optional(),
-  status: z.enum(["pending", "approved", "rejected", "published"]).optional(),
+  status: z
+    .enum(["pending", "approved", "rejected", "published", "matched", "closed"])
+    .optional(),
   admin_notes: z.string().trim().max(2000).nullable().optional(),
 });
 
@@ -370,6 +374,48 @@ export const adminUpsertSetting = createServerFn({ method: "POST" })
     const { error } = await context.supabase
       .from("site_settings")
       .upsert(data, { onConflict: "key" });
+    if (error) throw new Error(error.message);
+    return { ok: true as const };
+  });
+
+// ============ accommodation requests ("looking for accommodation") ============
+const accommodationRequestUpdateSchema = z.object({
+  id: z.string().uuid(),
+  status: z.enum(["new", "under_review", "matched", "closed"]).optional(),
+});
+
+export const adminListAccommodationRequests = createServerFn({ method: "GET" })
+  .middleware([requireAdmin])
+  .handler(async ({ context }) => {
+    const { data, error } = await context.supabase
+      .from("accommodation_requests")
+      .select("*")
+      .order("created_at", { ascending: false });
+    if (error) throw new Error(error.message);
+    return (data ?? []) as AccommodationRequestRow[];
+  });
+
+export const adminUpdateAccommodationRequest = createServerFn({ method: "POST" })
+  .middleware([requireAdmin])
+  .inputValidator((data: unknown) => accommodationRequestUpdateSchema.parse(data))
+  .handler(async ({ context, data }) => {
+    const { id, ...rest } = data;
+    const { error } = await context.supabase
+      .from("accommodation_requests")
+      .update(stripUndefined(rest) as AccommodationRequestUpdate)
+      .eq("id", id);
+    if (error) throw new Error(error.message);
+    return { ok: true as const };
+  });
+
+export const adminDeleteAccommodationRequest = createServerFn({ method: "POST" })
+  .middleware([requireAdmin])
+  .inputValidator((data: unknown) => z.object({ id: z.string().uuid() }).parse(data))
+  .handler(async ({ context, data }) => {
+    const { error } = await context.supabase
+      .from("accommodation_requests")
+      .delete()
+      .eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true as const };
   });

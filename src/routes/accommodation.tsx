@@ -5,7 +5,7 @@ import { Search, Send, ShieldAlert } from "lucide-react";
 import { listingsQuery, siteSettingsQuery } from "@/lib/queries";
 import { ListingCard } from "@/components/site/ListingCard";
 import { SectionHeading } from "@/components/site/SectionHeading";
-import { ListingSubmissionForm } from "@/components/accommodation/ListingSubmissionForm";
+import { AccommodationWizard } from "@/components/accommodation/AccommodationWizard";
 import { Reveal, StaggerGroup, StaggerItem, Float } from "@/components/motion/Motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -191,28 +191,15 @@ function AccommodationPage() {
         </ul>
       </section>
 
-      <section className="mt-24">
+      <section id="find-or-list" className="mt-24 scroll-mt-28">
         <SectionHeading
-          eyebrow="Add a listing"
-          title="Two ways to share a place"
-          description="Landlords and students go through different forms — and we label every submission so students always know where a room came from."
+          eyebrow="Get started"
+          title="Find or List Accommodation"
+          description="Tell us what you need and we will help you find the right match."
           align="center"
         />
-        <div className="mt-10 grid gap-6 lg:grid-cols-2">
-          <div id="list-property" className="scroll-mt-28">
-            <ListingSubmissionForm source="landlord" />
-          </div>
-          <div id="upload-accommodation" className="scroll-mt-28">
-            <ListingSubmissionForm source="student_upload" />
-          </div>
-        </div>
-        <div className="mt-8 flex justify-center gap-3">
-          <Button asChild variant="outline">
-            <a href="#list-property">List your property</a>
-          </Button>
-          <Button asChild variant="coral">
-            <a href="#upload-accommodation">Upload your accommodation</a>
-          </Button>
+        <div className="mx-auto mt-10 max-w-2xl">
+          <AccommodationWizard />
         </div>
       </section>
     </div>

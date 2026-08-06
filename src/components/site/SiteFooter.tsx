@@ -164,19 +164,10 @@ export function SiteFooter() {
             <li>
               <Link
                 to="/accommodation"
-                hash="list-property"
+                hash="find-or-list"
                 className="transition-colors hover:text-secondary"
               >
-                List your property
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/accommodation"
-                hash="upload-accommodation"
-                className="transition-colors hover:text-secondary"
-              >
-                Upload your room
+                Find or list a room
               </Link>
             </li>
           </ul>
