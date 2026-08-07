@@ -18,17 +18,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ROOM_TYPES, RENTS, ROOMMATES, GENDER_PREFERENCES, CONTRACT_STATUSES } from "@/lib/accommodation-options";
 
 const TOTAL_STEPS = 4;
-
-const ROOM_TYPES = [
-  { value: "studio", label: "Studio / Monolocale" },
-  { value: "single_shared_flat", label: "Single room in a shared flat" },
-  { value: "shared_bed", label: "Shared bed space (sharing a room with another person)" },
-];
-
-const RENTS = ["Less than €400", "€400–€550", "€550–€700", "€700–€850", "More than €850"];
-const ROOMMATES = ["2", "3", "4", "4+"];
 
 type FormState = {
   first_name: string;
@@ -298,20 +290,12 @@ export function ListingFlow({ onBackToStart }: { onBackToStart: () => void }) {
             <div>
               <Label>Is a registered contract available during the stay?</Label>
               <RadioGroup value={data.contract_status} onValueChange={(v) => set("contract_status", v)} className="mt-2">
-                <div className="flex items-center gap-2">
-                  <RadioGroupItem value="yes" id="l-contract-yes" />
-                  <Label htmlFor="l-contract-yes" className="font-normal">Yes</Label>
-                </div>
-                <div className="flex items-center gap-2">
-                  <RadioGroupItem value="no" id="l-contract-no" />
-                  <Label htmlFor="l-contract-no" className="font-normal">No</Label>
-                </div>
-                <div className="flex items-center gap-2">
-                  <RadioGroupItem value="explain" id="l-contract-explain" />
-                  <Label htmlFor="l-contract-explain" className="font-normal">
-                    Explain why / Is it possible to provide hospitality?
-                  </Label>
-                </div>
+                {CONTRACT_STATUSES.map((opt) => (
+                  <div key={opt.value} className="flex items-center gap-2">
+                    <RadioGroupItem value={opt.value} id={`l-contract-${opt.value}`} />
+                    <Label htmlFor={`l-contract-${opt.value}`} className="font-normal">{opt.label}</Label>
+                  </div>
+                ))}
               </RadioGroup>
               <FieldError message={errors.contract_status} />
             </div>
@@ -372,11 +356,7 @@ export function ListingFlow({ onBackToStart }: { onBackToStart: () => void }) {
             <div>
               <Label>Gender preference</Label>
               <RadioGroup value={data.gender_preference} onValueChange={(v) => set("gender_preference", v)} className="mt-2">
-                {[
-                  { value: "male_only", label: "Only for male" },
-                  { value: "female_only", label: "Only for female" },
-                  { value: "no_preference", label: "No preference, as long as the tenant can pay the rent" },
-                ].map((opt) => (
+                {GENDER_PREFERENCES.map((opt) => (
                   <div key={opt.value} className="flex items-center gap-2">
                     <RadioGroupItem value={opt.value} id={`l-gender-${opt.value}`} />
                     <Label htmlFor={`l-gender-${opt.value}`} className="font-normal">{opt.label}</Label>

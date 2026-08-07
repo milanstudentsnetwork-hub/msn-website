@@ -1,16 +1,27 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { Search, Send, ShieldAlert } from "lucide-react";
+import { Search, Send, ShieldAlert, X } from "lucide-react";
 import { listingsQuery, siteSettingsQuery } from "@/lib/queries";
 import { ListingCard } from "@/components/site/ListingCard";
 import { SectionHeading } from "@/components/site/SectionHeading";
 import { AccommodationWizard } from "@/components/accommodation/AccommodationWizard";
+import { ListingsMap, type LatLng } from "@/components/accommodation/ListingsMap";
 import { Reveal, StaggerGroup, StaggerItem, Float } from "@/components/motion/Motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { GENDER_PREFERENCES, ROOMMATES, CONTRACT_STATUSES } from "@/lib/accommodation-options";
+import { distanceKm } from "@/lib/geo";
 import milanMap from "@/assets/milan-map.jpg";
+
+const YES_NO_FILTERS = [
+  { value: "all", label: "Any" },
+  { value: "yes", label: "Yes" },
+  { value: "no", label: "No" },
+];
+
+const DEFAULT_RADIUS_KM = 3;
 
 export const Route = createFileRoute("/accommodation")({
   loader: ({ context }) =>
@@ -44,6 +55,25 @@ function formatLabel(value: string) {
     .join(" ");
 }
 
+// Upper bound of each budget bucket collected by the listing wizard. A listing only
+// reliably fits under a given max-price filter if its whole bucket is at or below it —
+// "More than €850" has no upper bound, so it only ever matches the uncapped filter.
+const RENT_BUCKET_MAX: Record<string, number> = {
+  "Less than €400": 400,
+  "€400–€550": 550,
+  "€550–€700": 700,
+  "€700–€850": 850,
+  "More than €850": Infinity,
+};
+const PRICE_SLIDER_MAX = 2000;
+
+/** Listings from the wizard only store an approximate bucket lower-bound in `price`;
+ * use the bucket's upper bound instead so the filter doesn't under-count expensive listings.
+ * Legacy/admin listings without a bucket keep their real numeric `price`. */
+function effectiveMaxPrice(listing: { price: number; rent_range: string }) {
+  return RENT_BUCKET_MAX[listing.rent_range] ?? listing.price;
+}
+
 function AccommodationPage() {
   const { data: listings } = useSuspenseQuery(listingsQuery);
   const { data: settings } = useSuspenseQuery(siteSettingsQuery);
@@ -52,6 +82,14 @@ function AccommodationPage() {
   const [query, setQuery] = useState("");
   const [maxPrice, setMaxPrice] = useState(2000);
   const [roomType, setRoomType] = useState("all");
+  const [genderPref, setGenderPref] = useState("all");
+  const [maxRoommates, setMaxRoommates] = useState("all");
+  const [contractStatus, setContractStatus] = useState("all");
+  const [availableNow, setAvailableNow] = useState("all");
+  const [longTerm, setLongTerm] = useState("all");
+  const [isModern, setIsModern] = useState("all");
+  const [mapCenter, setMapCenter] = useState<LatLng | null>(null);
+  const [radiusKm, setRadiusKm] = useState(DEFAULT_RADIUS_KM);
 
   const roomTypes = useMemo(
     () => ["all", ...Array.from(new Set(listings.map((l) => l.room_type)))],
@@ -60,12 +98,43 @@ function AccommodationPage() {
 
   const filtered = listings.filter((listing) => {
     const haystack = `${listing.title} ${listing.neighborhood} ${listing.description}`.toLowerCase();
+    const priceLimit = maxPrice >= PRICE_SLIDER_MAX ? Infinity : maxPrice;
+    const withinArea =
+      !mapCenter ||
+      (listing.latitude != null &&
+        listing.longitude != null &&
+        distanceKm(mapCenter.lat, mapCenter.lng, listing.latitude, listing.longitude) <= radiusKm);
     return (
       haystack.includes(query.toLowerCase()) &&
-      listing.price <= maxPrice &&
-      (roomType === "all" || listing.room_type === roomType)
+      effectiveMaxPrice(listing) <= priceLimit &&
+      (roomType === "all" || listing.room_type === roomType) &&
+      // A listing marked "no preference" welcomes any gender, so it should match every choice.
+      (genderPref === "all" ||
+        listing.gender_preference === genderPref ||
+        listing.gender_preference === "no_preference") &&
+      (maxRoommates === "all" || listing.max_roommates === maxRoommates) &&
+      (contractStatus === "all" || listing.contract_status === contractStatus) &&
+      (availableNow === "all" || listing.available_now === (availableNow === "yes")) &&
+      (longTerm === "all" || listing.long_term === (longTerm === "yes")) &&
+      // is_modern is nullable — NULL means "we don't know," so don't penalize the listing for it.
+      (isModern === "all" || listing.is_modern == null || listing.is_modern === (isModern === "yes")) &&
+      withinArea
     );
   });
+
+  function resetFilters() {
+    setQuery("");
+    setMaxPrice(PRICE_SLIDER_MAX);
+    setRoomType("all");
+    setGenderPref("all");
+    setMaxRoommates("all");
+    setContractStatus("all");
+    setAvailableNow("all");
+    setLongTerm("all");
+    setIsModern("all");
+    setMapCenter(null);
+    setRadiusKm(DEFAULT_RADIUS_KM);
+  }
 
   return (
     <div className="mx-auto max-w-7xl px-5 py-16">
@@ -106,18 +175,150 @@ function AccommodationPage() {
             </select>
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="price">Max €{maxPrice}/month</Label>
+            <Label htmlFor="price">
+              {maxPrice >= PRICE_SLIDER_MAX ? "Any budget" : `Max €${maxPrice}/month`}
+            </Label>
             <input
               id="price"
               type="range"
               min={200}
-              max={2000}
+              max={PRICE_SLIDER_MAX}
               step={50}
               value={maxPrice}
               onChange={(e) => setMaxPrice(Number(e.target.value))}
               className="h-9 w-full accent-[var(--coral)]"
             />
           </div>
+        </div>
+
+        {/* Mirrors every question the "Post a listing" wizard asks, so students can filter on it. */}
+        <div className="mt-4 grid gap-4 border-t border-border pt-4 sm:grid-cols-2 lg:grid-cols-6">
+          <div className="space-y-1.5">
+            <Label htmlFor="gender-pref">Gender preference</Label>
+            <select
+              id="gender-pref"
+              value={genderPref}
+              onChange={(e) => setGenderPref(e.target.value)}
+              className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm shadow-sm"
+            >
+              <option value="all">Any</option>
+              {GENDER_PREFERENCES.map((opt) => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="roommates">Max sharing bathroom/kitchen</Label>
+            <select
+              id="roommates"
+              value={maxRoommates}
+              onChange={(e) => setMaxRoommates(e.target.value)}
+              className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm shadow-sm"
+            >
+              <option value="all">Any</option>
+              {ROOMMATES.map((r) => (
+                <option key={r} value={r}>{r}</option>
+              ))}
+            </select>
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="contract">Registered contract</Label>
+            <select
+              id="contract"
+              value={contractStatus}
+              onChange={(e) => setContractStatus(e.target.value)}
+              className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm shadow-sm"
+            >
+              <option value="all">Any</option>
+              {CONTRACT_STATUSES.map((opt) => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="available-now">Available now</Label>
+            <select
+              id="available-now"
+              value={availableNow}
+              onChange={(e) => setAvailableNow(e.target.value)}
+              className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm shadow-sm"
+            >
+              {YES_NO_FILTERS.map((opt) => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="long-term">Long-term stay</Label>
+            <select
+              id="long-term"
+              value={longTerm}
+              onChange={(e) => setLongTerm(e.target.value)}
+              className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm shadow-sm"
+            >
+              {YES_NO_FILTERS.map((opt) => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="modern">Modern</Label>
+            <select
+              id="modern"
+              value={isModern}
+              onChange={(e) => setIsModern(e.target.value)}
+              className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm shadow-sm"
+            >
+              {YES_NO_FILTERS.map((opt) => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        <div className="mt-4 flex justify-end border-t border-border pt-4">
+          <Button variant="ghost" size="sm" onClick={resetFilters}>
+            <X className="size-4" /> Reset all filters
+          </Button>
+        </div>
+      </Reveal>
+
+      <Reveal className="mt-6 rounded-3xl border border-border bg-card p-5 shadow-soft sm:p-6">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h3 className="font-display font-semibold">Search by area</h3>
+            <p className="text-sm text-muted-foreground">
+              Click the map to drop a pin, then set a radius to only see listings nearby.
+            </p>
+          </div>
+          {mapCenter && (
+            <Button variant="outline" size="sm" onClick={() => setMapCenter(null)}>
+              <X className="size-4" /> Clear area
+            </Button>
+          )}
+        </div>
+        {mapCenter && (
+          <div className="mt-4 space-y-1.5">
+            <Label htmlFor="radius">Radius: {radiusKm} km</Label>
+            <input
+              id="radius"
+              type="range"
+              min={0.5}
+              max={10}
+              step={0.5}
+              value={radiusKm}
+              onChange={(e) => setRadiusKm(Number(e.target.value))}
+              className="h-9 w-full accent-[var(--coral)]"
+            />
+          </div>
+        )}
+        <div className="mt-4">
+          <ListingsMap
+            listings={listings}
+            center={mapCenter}
+            radiusKm={radiusKm}
+            onCenterChange={setMapCenter}
+          />
         </div>
       </Reveal>
 

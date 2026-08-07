@@ -12,6 +12,9 @@ function formatLabel(value: string) {
 
 export function ListingCard({ listing }: { listing: ListingRow }) {
   const cover = listing.images?.[0] ?? roomPlaceholder;
+  // Listings from the wizard only store an approximate bucket, not a real number —
+  // show the bucket ("More than €850") rather than the misleading stand-in price.
+  const priceLabel = listing.rent_range || `€${listing.price}/${listing.price_period}`;
 
   return (
     <article className="lift-tilt group flex h-full flex-col overflow-hidden rounded-3xl border border-border bg-card shadow-soft">
@@ -33,8 +36,7 @@ export function ListingCard({ listing }: { listing: ListingRow }) {
         )}
         <span className="absolute bottom-4 left-4 inline-flex items-center gap-1 rounded-full bg-primary px-3 py-1.5 font-display text-sm font-semibold text-primary-foreground shadow-soft">
           <Euro className="size-3.5" />
-          {listing.price}
-          <span className="font-sans text-xs font-medium opacity-75">/{listing.price_period}</span>
+          {priceLabel}
         </span>
       </div>
 

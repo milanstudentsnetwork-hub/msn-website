@@ -214,7 +214,7 @@ INSERT INTO public.site_settings (key, value) VALUES
   ('hero_subtitle', 'From finding a room to finding your people, Milan Students Network helps international students feel at home from day one.'),
   ('hero_cta_primary', 'Find Accommodation'),
   ('hero_cta_secondary', 'Explore Events'),
-  ('contact_email', 'hello@milanstudentsnetwork.com'),
+  ('contact_email', 'info@milan-sn.it'),
   ('contact_phone', '+39 000 000 0000'),
   ('whatsapp_url', 'https://wa.me/390000000000'),
   ('instagram_url', 'https://instagram.com/milanstudentsnetwork'),
