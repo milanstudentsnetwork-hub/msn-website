@@ -7,7 +7,8 @@ import { ListingCard } from "@/components/site/ListingCard";
 import { SectionHeading } from "@/components/site/SectionHeading";
 import { AccommodationWizard } from "@/components/accommodation/AccommodationWizard";
 import { ListingsMap, type LatLng } from "@/components/accommodation/ListingsMap";
-import { Reveal, StaggerGroup, StaggerItem, Float } from "@/components/motion/Motion";
+import { motion } from "motion/react";
+import { Reveal, Float, staggerParent, staggerChild } from "@/components/motion/Motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -322,13 +323,21 @@ function AccommodationPage() {
         </div>
       </Reveal>
 
-      <StaggerGroup className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {/* Animate in on mount rather than on scroll-into-view: this list re-filters and
+          re-mounts constantly, and a viewport-triggered reveal can leave late-mounting
+          cards permanently invisible once the parent's one-time trigger has already fired. */}
+      <motion.div
+        className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+        variants={staggerParent}
+        initial="hidden"
+        animate="show"
+      >
         {filtered.map((listing) => (
-          <StaggerItem key={listing.id} className="h-full">
+          <motion.div key={listing.id} variants={staggerChild} className="h-full">
             <ListingCard listing={listing} />
-          </StaggerItem>
+          </motion.div>
         ))}
-      </StaggerGroup>
+      </motion.div>
 
       {filtered.length === 0 && (
         <p className="mt-16 text-center text-muted-foreground">
