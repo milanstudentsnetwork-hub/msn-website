@@ -73,6 +73,38 @@ export async function sendAccommodationRequestEmails(input: {
   }
 }
 
+export async function sendContactMessageEmails(input: {
+  fullName: string;
+  email: string;
+  subject: string;
+  message: string;
+}) {
+  await sendEmail(
+    input.email,
+    "We've got your message",
+    wrapper(
+      "Thanks for writing in!",
+      `<p>Hi ${input.fullName},</p>
+       <p>We've received your message about "<strong>${input.subject}</strong>" and a real student on our team
+       will reply within two days.</p>`,
+    ),
+  );
+
+  const adminEmail = await getAdminEmail();
+  if (adminEmail) {
+    await sendEmail(
+      adminEmail,
+      `New contact message: ${input.subject}`,
+      wrapper(
+        "New contact message",
+        `<p><strong>${input.fullName}</strong> (${input.email})</p>
+         <p><strong>${input.subject}</strong></p>
+         <p>${input.message.replace(/\n/g, "<br>")}</p>`,
+      ),
+    );
+  }
+}
+
 export async function sendAccommodationListingEmails(input: {
   firstName: string;
   lastName: string;

@@ -195,6 +195,15 @@ export const submitContactMessage = createServerFn({ method: "POST" })
     const { getPublicClient } = await import("./supabase-public.server");
     const { error } = await getPublicClient().from("contact_messages").insert(data);
     if (error) throw new Error(error.message);
+
+    const { sendContactMessageEmails } = await import("./email.server");
+    await sendContactMessageEmails({
+      fullName: data.full_name,
+      email: data.email,
+      subject: data.subject,
+      message: data.message,
+    });
+
     return { ok: true as const };
   });
 
