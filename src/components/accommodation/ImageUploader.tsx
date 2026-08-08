@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { ImagePlus, Loader2, X } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { getListingPhotoUploadUrl } from "@/lib/uploads.functions";
 import { cn } from "@/lib/utils";
 
 const MAX_IMAGES = 5;
@@ -17,6 +18,7 @@ export function ImageUploader({
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const getUploadUrl = useServerFn(getListingPhotoUploadUrl);
 
   async function handleFiles(fileList: FileList | null) {
     if (!fileList || fileList.length === 0) return;
@@ -49,18 +51,22 @@ export function ImageUploader({
           fileType: file.type,
         });
 
-        const ext = file.name.split(".").pop() || "jpg";
-        const path = `listings/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-        const { error: uploadError } = await supabase.storage
-          .from("listing-uploads")
-          .upload(path, compressed, { contentType: file.type });
-        if (uploadError) {
-          setError(`Couldn't upload "${file.name}": ${uploadError.message}`);
+        const contentType = file.type === "image/jpg" ? "image/jpeg" : file.type;
+        const { uploadUrl, publicUrl } = await getUploadUrl({
+          data: { fileName: file.name, contentType: contentType as "image/jpeg" | "image/png" | "image/webp" },
+        });
+
+        const putResponse = await fetch(uploadUrl, {
+          method: "PUT",
+          body: compressed,
+          headers: { "Content-Type": contentType },
+        });
+        if (!putResponse.ok) {
+          setError(`Couldn't upload "${file.name}". Try again.`);
           continue;
         }
 
-        const { data } = supabase.storage.from("listing-uploads").getPublicUrl(path);
-        onChange([...value, data.publicUrl]);
+        onChange([...value, publicUrl]);
       } catch {
         setError(`Couldn't process "${file.name}". Try a different photo.`);
       } finally {
