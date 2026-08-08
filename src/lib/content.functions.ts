@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { z } from "zod";
 import type { Database } from "@/integrations/supabase/types";
 
 export type EventRow = Database["public"]["Tables"]["events"]["Row"];
@@ -50,6 +51,20 @@ export const listListings = createServerFn({ method: "GET" }).handler(async () =
   if (error) throw new Error(error.message);
   return (data ?? []) as ListingRow[];
 });
+
+export const getListing = createServerFn({ method: "GET" })
+  .inputValidator((id: unknown) => z.string().uuid().parse(id))
+  .handler(async ({ data: id }) => {
+    const { getPublicClient } = await import("./supabase-public.server");
+    const { data, error } = await getPublicClient()
+      .from("accommodation_listings")
+      .select("*")
+      .eq("id", id)
+      .eq("status", "published")
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    return data as ListingRow | null;
+  });
 
 export const getSiteSettings = createServerFn({ method: "GET" }).handler(async () => {
   const { getPublicClient } = await import("./supabase-public.server");

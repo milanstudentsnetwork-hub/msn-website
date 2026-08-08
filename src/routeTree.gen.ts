@@ -16,6 +16,8 @@ import { Route as ContactRouteImport } from './routes/contact'
 import { Route as EventsRouteImport } from './routes/events'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as ServicesRouteImport } from './routes/services'
+import { Route as AccommodationIndexRouteImport } from './routes/accommodation.index'
+import { Route as AccommodationIdRouteImport } from './routes/accommodation.$id'
 import { Route as AdminPortalIndexRouteImport } from './routes/admin-portal/index'
 import { Route as AdminPortalAccommodationRouteImport } from './routes/admin-portal/accommodation'
 import { Route as AdminPortalAccommodationRequestsRouteImport } from './routes/admin-portal/accommodation-requests'
@@ -62,6 +64,16 @@ const ServicesRoute = ServicesRouteImport.update({
   id: '/services',
   path: '/services',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AccommodationIndexRoute = AccommodationIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AccommodationRoute,
+} as any)
+const AccommodationIdRoute = AccommodationIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AccommodationRoute,
 } as any)
 const AdminPortalIndexRoute = AdminPortalIndexRouteImport.update({
   id: '/admin-portal/',
@@ -124,11 +136,12 @@ const ApiTelegramWebhookRoute = ApiTelegramWebhookRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/accommodation': typeof AccommodationRoute
+  '/accommodation': typeof AccommodationRouteWithChildren
   '/contact': typeof ContactRoute
   '/events': typeof EventsRoute
   '/faq': typeof FaqRoute
   '/services': typeof ServicesRoute
+  '/accommodation/$id': typeof AccommodationIdRoute
   '/admin-portal/accommodation': typeof AdminPortalAccommodationRoute
   '/admin-portal/accommodation-requests': typeof AdminPortalAccommodationRequestsRoute
   '/admin-portal/events': typeof AdminPortalEventsRoute
@@ -139,16 +152,17 @@ export interface FileRoutesByFullPath {
   '/admin-portal/services': typeof AdminPortalServicesRoute
   '/admin-portal/settings': typeof AdminPortalSettingsRoute
   '/api/telegram-webhook': typeof ApiTelegramWebhookRoute
+  '/accommodation/': typeof AccommodationIndexRoute
   '/admin-portal/': typeof AdminPortalIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/accommodation': typeof AccommodationRoute
   '/contact': typeof ContactRoute
   '/events': typeof EventsRoute
   '/faq': typeof FaqRoute
   '/services': typeof ServicesRoute
+  '/accommodation/$id': typeof AccommodationIdRoute
   '/admin-portal/accommodation': typeof AdminPortalAccommodationRoute
   '/admin-portal/accommodation-requests': typeof AdminPortalAccommodationRequestsRoute
   '/admin-portal/events': typeof AdminPortalEventsRoute
@@ -159,17 +173,19 @@ export interface FileRoutesByTo {
   '/admin-portal/services': typeof AdminPortalServicesRoute
   '/admin-portal/settings': typeof AdminPortalSettingsRoute
   '/api/telegram-webhook': typeof ApiTelegramWebhookRoute
+  '/accommodation': typeof AccommodationIndexRoute
   '/admin-portal': typeof AdminPortalIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/accommodation': typeof AccommodationRoute
+  '/accommodation': typeof AccommodationRouteWithChildren
   '/contact': typeof ContactRoute
   '/events': typeof EventsRoute
   '/faq': typeof FaqRoute
   '/services': typeof ServicesRoute
+  '/accommodation/$id': typeof AccommodationIdRoute
   '/admin-portal/accommodation': typeof AdminPortalAccommodationRoute
   '/admin-portal/accommodation-requests': typeof AdminPortalAccommodationRequestsRoute
   '/admin-portal/events': typeof AdminPortalEventsRoute
@@ -180,6 +196,7 @@ export interface FileRoutesById {
   '/admin-portal/services': typeof AdminPortalServicesRoute
   '/admin-portal/settings': typeof AdminPortalSettingsRoute
   '/api/telegram-webhook': typeof ApiTelegramWebhookRoute
+  '/accommodation/': typeof AccommodationIndexRoute
   '/admin-portal/': typeof AdminPortalIndexRoute
 }
 export interface FileRouteTypes {
@@ -192,6 +209,7 @@ export interface FileRouteTypes {
     | '/events'
     | '/faq'
     | '/services'
+    | '/accommodation/$id'
     | '/admin-portal/accommodation'
     | '/admin-portal/accommodation-requests'
     | '/admin-portal/events'
@@ -202,16 +220,17 @@ export interface FileRouteTypes {
     | '/admin-portal/services'
     | '/admin-portal/settings'
     | '/api/telegram-webhook'
+    | '/accommodation/'
     | '/admin-portal/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/about'
-    | '/accommodation'
     | '/contact'
     | '/events'
     | '/faq'
     | '/services'
+    | '/accommodation/$id'
     | '/admin-portal/accommodation'
     | '/admin-portal/accommodation-requests'
     | '/admin-portal/events'
@@ -222,6 +241,7 @@ export interface FileRouteTypes {
     | '/admin-portal/services'
     | '/admin-portal/settings'
     | '/api/telegram-webhook'
+    | '/accommodation'
     | '/admin-portal'
   id:
     | '__root__'
@@ -232,6 +252,7 @@ export interface FileRouteTypes {
     | '/events'
     | '/faq'
     | '/services'
+    | '/accommodation/$id'
     | '/admin-portal/accommodation'
     | '/admin-portal/accommodation-requests'
     | '/admin-portal/events'
@@ -242,13 +263,14 @@ export interface FileRouteTypes {
     | '/admin-portal/services'
     | '/admin-portal/settings'
     | '/api/telegram-webhook'
+    | '/accommodation/'
     | '/admin-portal/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
-  AccommodationRoute: typeof AccommodationRoute
+  AccommodationRoute: typeof AccommodationRouteWithChildren
   ContactRoute: typeof ContactRoute
   EventsRoute: typeof EventsRoute
   FaqRoute: typeof FaqRoute
@@ -316,6 +338,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/services'
       preLoaderRoute: typeof ServicesRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/accommodation/': {
+      id: '/accommodation/'
+      path: '/'
+      fullPath: '/accommodation/'
+      preLoaderRoute: typeof AccommodationIndexRouteImport
+      parentRoute: typeof AccommodationRoute
+    }
+    '/accommodation/$id': {
+      id: '/accommodation/$id'
+      path: '/$id'
+      fullPath: '/accommodation/$id'
+      preLoaderRoute: typeof AccommodationIdRouteImport
+      parentRoute: typeof AccommodationRoute
     }
     '/admin-portal/': {
       id: '/admin-portal/'
@@ -397,10 +433,24 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AccommodationRouteChildren {
+  AccommodationIdRoute: typeof AccommodationIdRoute
+  AccommodationIndexRoute: typeof AccommodationIndexRoute
+}
+
+const AccommodationRouteChildren: AccommodationRouteChildren = {
+  AccommodationIdRoute: AccommodationIdRoute,
+  AccommodationIndexRoute: AccommodationIndexRoute,
+}
+
+const AccommodationRouteWithChildren = AccommodationRoute._addFileChildren(
+  AccommodationRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
-  AccommodationRoute: AccommodationRoute,
+  AccommodationRoute: AccommodationRouteWithChildren,
   ContactRoute: ContactRoute,
   EventsRoute: EventsRoute,
   FaqRoute: FaqRoute,

@@ -9,13 +9,15 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { adminListListings, adminUpdateListing, adminDeleteListing } from "@/lib/admin.functions";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -39,6 +41,7 @@ function AccommodationAdminPage() {
   const [loading, setLoading] = useState(true);
   const [sourceFilter, setSourceFilter] = useState<SourceFilter>("all");
   const [editing, setEditing] = useState<ListingRow | null>(null);
+  const [viewingPhotos, setViewingPhotos] = useState<ListingRow | null>(null);
   const [editForm, setEditForm] = useState({
     title: "",
     description: "",
@@ -66,7 +69,8 @@ function AccommodationAdminPage() {
   }, []);
 
   const filtered = useMemo(
-    () => (sourceFilter === "all" ? listings : listings.filter((l) => l.listing_source === sourceFilter)),
+    () =>
+      sourceFilter === "all" ? listings : listings.filter((l) => l.listing_source === sourceFilter),
     [listings, sourceFilter],
   );
 
@@ -150,7 +154,11 @@ function AccommodationAdminPage() {
               variant={sourceFilter === value ? "coral" : "outline"}
               onClick={() => setSourceFilter(value)}
             >
-              {value === "all" ? "All" : value === "landlord" ? "Landlord/Agency" : "Student Upload"}
+              {value === "all"
+                ? "All"
+                : value === "landlord"
+                  ? "Landlord/Agency"
+                  : "Student Upload"}
             </Button>
           ))}
         </div>
@@ -161,6 +169,7 @@ function AccommodationAdminPage() {
           <TableHeader>
             <TableRow>
               <TableHead>Title</TableHead>
+              <TableHead>Photos</TableHead>
               <TableHead>Source</TableHead>
               <TableHead>Contact</TableHead>
               <TableHead>Price</TableHead>
@@ -173,13 +182,13 @@ function AccommodationAdminPage() {
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={8} className="text-center text-muted-foreground">
+                <TableCell colSpan={9} className="text-center text-muted-foreground">
                   Loading…
                 </TableCell>
               </TableRow>
             ) : filtered.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} className="text-center text-muted-foreground">
+                <TableCell colSpan={9} className="text-center text-muted-foreground">
                   No listings here.
                 </TableCell>
               </TableRow>
@@ -188,13 +197,35 @@ function AccommodationAdminPage() {
                 <TableRow key={listing.id}>
                   <TableCell className="max-w-xs truncate font-medium">{listing.title}</TableCell>
                   <TableCell>
-                    <Badge variant={listing.listing_source === "landlord" ? "default" : "secondary"}>
+                    {listing.images && listing.images.length > 0 ? (
+                      <button
+                        type="button"
+                        onClick={() => setViewingPhotos(listing)}
+                        className="group relative block size-12 overflow-hidden rounded-lg border border-border"
+                      >
+                        <img src={listing.images[0]} alt="" className="size-full object-cover" />
+                        {listing.images.length > 1 && (
+                          <span className="absolute bottom-0 right-0 rounded-tl bg-black/70 px-1 text-[10px] font-bold text-white">
+                            {listing.images.length}
+                          </span>
+                        )}
+                      </button>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">None</span>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    <Badge
+                      variant={listing.listing_source === "landlord" ? "default" : "secondary"}
+                    >
                       {listing.listing_source === "landlord" ? "Landlord/Agency" : "Student Upload"}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-xs">
                     <p>{listing.contact_name}</p>
-                    <p className="text-muted-foreground">{listing.contact_phone || listing.contact_email}</p>
+                    <p className="text-muted-foreground">
+                      {listing.contact_phone || listing.contact_email}
+                    </p>
                   </TableCell>
                   <TableCell>{listing.rent_range || `€${listing.price}`}</TableCell>
                   <TableCell>{listing.neighborhood}</TableCell>
@@ -220,7 +251,11 @@ function AccommodationAdminPage() {
                   <TableCell className="text-right space-x-1 whitespace-nowrap">
                     {listing.status === "pending" && (
                       <>
-                        <Button size="sm" variant="ghost" onClick={() => handleSetStatus(listing.id, "approved")}>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => handleSetStatus(listing.id, "approved")}
+                        >
                           Approve
                         </Button>
                         <Button
@@ -235,7 +270,11 @@ function AccommodationAdminPage() {
                     )}
                     {listing.status === "approved" && (
                       <>
-                        <Button size="sm" variant="ghost" onClick={() => handleSetStatus(listing.id, "published")}>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => handleSetStatus(listing.id, "published")}
+                        >
                           Publish
                         </Button>
                         <Button
@@ -250,31 +289,55 @@ function AccommodationAdminPage() {
                     )}
                     {listing.status === "published" && (
                       <>
-                        <Button size="sm" variant="ghost" onClick={() => handleSetStatus(listing.id, "matched")}>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => handleSetStatus(listing.id, "matched")}
+                        >
                           Mark Matched
                         </Button>
-                        <Button size="sm" variant="ghost" onClick={() => handleSetStatus(listing.id, "approved")}>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => handleSetStatus(listing.id, "approved")}
+                        >
                           Unpublish
                         </Button>
                       </>
                     )}
                     {listing.status === "matched" && (
                       <>
-                        <Button size="sm" variant="ghost" onClick={() => handleSetStatus(listing.id, "published")}>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => handleSetStatus(listing.id, "published")}
+                        >
                           Back to Published
                         </Button>
-                        <Button size="sm" variant="ghost" onClick={() => handleSetStatus(listing.id, "closed")}>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => handleSetStatus(listing.id, "closed")}
+                        >
                           Close
                         </Button>
                       </>
                     )}
                     {listing.status === "closed" && (
-                      <Button size="sm" variant="ghost" onClick={() => handleSetStatus(listing.id, "published")}>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => handleSetStatus(listing.id, "published")}
+                      >
                         Reopen
                       </Button>
                     )}
                     {listing.status === "rejected" && (
-                      <Button size="sm" variant="ghost" onClick={() => handleSetStatus(listing.id, "approved")}>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => handleSetStatus(listing.id, "approved")}
+                      >
                         Reconsider
                       </Button>
                     )}
@@ -361,6 +424,25 @@ function AccommodationAdminPage() {
               {saving ? "Saving…" : "Save Changes"}
             </Button>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={viewingPhotos !== null} onOpenChange={(v) => !v && setViewingPhotos(null)}>
+        <DialogContent className="max-h-[85vh] max-w-3xl overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{viewingPhotos?.title}</DialogTitle>
+          </DialogHeader>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+            {viewingPhotos?.images?.map((url) => (
+              <a key={url} href={url} target="_blank" rel="noreferrer" className="block">
+                <img
+                  src={url}
+                  alt=""
+                  className="aspect-square w-full rounded-lg border border-border object-cover"
+                />
+              </a>
+            ))}
+          </div>
         </DialogContent>
       </Dialog>
     </div>
