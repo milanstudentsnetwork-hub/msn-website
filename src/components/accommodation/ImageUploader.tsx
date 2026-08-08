@@ -62,13 +62,17 @@ export function ImageUploader({
           headers: { "Content-Type": contentType },
         });
         if (!putResponse.ok) {
-          setError(`Couldn't upload "${file.name}". Try again.`);
+          const body = await putResponse.text().catch(() => "");
+          console.error("R2 upload failed", putResponse.status, body);
+          setError(`Couldn't upload "${file.name}" (${putResponse.status}). Try again.`);
           continue;
         }
 
         onChange([...value, publicUrl]);
-      } catch {
-        setError(`Couldn't process "${file.name}". Try a different photo.`);
+      } catch (err) {
+        console.error("Photo processing failed", err);
+        const message = err instanceof Error ? err.message : String(err);
+        setError(`Couldn't process "${file.name}": ${message}`);
       } finally {
         setUploading(false);
       }
