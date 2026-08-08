@@ -59,15 +59,21 @@ export const submitAccommodationRequest = createServerFn({ method: "POST" })
     const { error } = await getPublicClient().from("accommodation_requests").insert(row);
     if (error) throw new Error(error.message);
 
-    const { sendAccommodationRequestEmails } = await import("./email.server");
-    await sendAccommodationRequestEmails({
-      firstName: row.first_name,
-      lastName: row.last_name,
-      email: row.email,
-      roomType: row.room_type,
-      budgetRange: row.budget_range,
-      stayType: row.stay_type,
-    });
+    // The row is already saved — a confirmation-email hiccup shouldn't make the
+    // client think the whole submission failed and risk a duplicate resubmit.
+    try {
+      const { sendAccommodationRequestEmails } = await import("./email.server");
+      await sendAccommodationRequestEmails({
+        firstName: row.first_name,
+        lastName: row.last_name,
+        email: row.email,
+        roomType: row.room_type,
+        budgetRange: row.budget_range,
+        stayType: row.stay_type,
+      });
+    } catch (err) {
+      console.error("[submitAccommodationRequest] confirmation email failed", err);
+    }
 
     return { ok: true as const };
   });
@@ -85,13 +91,7 @@ const accommodationListingSchema = z
     contract_status: z.enum(["yes", "no", "explain"]),
     contract_notes: z.string().trim().max(1000).nullable().default(null),
     room_type: z.enum(ROOM_TYPES),
-    rent_range: z.enum([
-      "Less than €400",
-      "€400–€550",
-      "€550–€700",
-      "€700–€850",
-      "More than €850",
-    ]),
+    rent_range: z.enum(["Less than €400", "€400–€550", "€550–€700", "€700–€850", "More than €850"]),
     gender_preference: z.enum(["male_only", "female_only", "no_preference"]),
     max_roommates: z.enum(["2", "3", "4", "4+"]),
     location_query: z.string().trim().min(2).max(200),
@@ -170,14 +170,20 @@ export const submitAccommodationListing = createServerFn({ method: "POST" })
       });
     if (error) throw new Error(error.message);
 
-    const { sendAccommodationListingEmails } = await import("./email.server");
-    await sendAccommodationListingEmails({
-      firstName: data.first_name,
-      lastName: data.last_name,
-      email: data.email,
-      title,
-      neighborhood: data.location_query,
-    });
+    // The row is already saved — a confirmation-email hiccup shouldn't make the
+    // client think the whole submission failed and risk a duplicate resubmit.
+    try {
+      const { sendAccommodationListingEmails } = await import("./email.server");
+      await sendAccommodationListingEmails({
+        firstName: data.first_name,
+        lastName: data.last_name,
+        email: data.email,
+        title,
+        neighborhood: data.location_query,
+      });
+    } catch (err) {
+      console.error("[submitAccommodationListing] confirmation email failed", err);
+    }
 
     return { ok: true as const };
   });
@@ -196,13 +202,19 @@ export const submitContactMessage = createServerFn({ method: "POST" })
     const { error } = await getPublicClient().from("contact_messages").insert(data);
     if (error) throw new Error(error.message);
 
-    const { sendContactMessageEmails } = await import("./email.server");
-    await sendContactMessageEmails({
-      fullName: data.full_name,
-      email: data.email,
-      subject: data.subject,
-      message: data.message,
-    });
+    // The row is already saved — a confirmation-email hiccup shouldn't make the
+    // client think the whole submission failed and risk a duplicate resubmit.
+    try {
+      const { sendContactMessageEmails } = await import("./email.server");
+      await sendContactMessageEmails({
+        fullName: data.full_name,
+        email: data.email,
+        subject: data.subject,
+        message: data.message,
+      });
+    } catch (err) {
+      console.error("[submitContactMessage] confirmation email failed", err);
+    }
 
     return { ok: true as const };
   });

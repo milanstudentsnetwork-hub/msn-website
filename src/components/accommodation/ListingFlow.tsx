@@ -18,7 +18,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ROOM_TYPES, RENTS, ROOMMATES, GENDER_PREFERENCES, CONTRACT_STATUSES } from "@/lib/accommodation-options";
+import {
+  ROOM_TYPES,
+  RENTS,
+  ROOMMATES,
+  GENDER_PREFERENCES,
+  CONTRACT_STATUSES,
+} from "@/lib/accommodation-options";
 
 const TOTAL_STEPS = 4;
 
@@ -99,7 +105,8 @@ function validateStep(step: number, data: FormState): FormErrors {
     if (!data.gender_preference) errors.gender_preference = "Please select an option.";
     if (!data.max_roommates) errors.max_roommates = "Please select an option.";
     if (!data.location_query.trim()) errors.location_query = "Please search or set a location.";
-    if (!data.location_description.trim()) errors.location_description = "Please describe the location.";
+    if (!data.location_description.trim())
+      errors.location_description = "Please describe the location.";
     if (!data.is_modern) errors.is_modern = "Please select an option.";
   }
   if (step === 4) {
@@ -159,7 +166,8 @@ export function ListingFlow({ onBackToStart }: { onBackToStart: () => void }) {
           contract_notes: data.contract_notes.trim() || null,
           room_type: data.room_type as "studio" | "single_shared_flat" | "shared_bed",
           rent_range: data.rent_range as (typeof RENTS)[number],
-          gender_preference: data.gender_preference as "male_only" | "female_only" | "no_preference",
+          gender_preference: data.gender_preference as
+            "male_only" | "female_only" | "no_preference",
           max_roommates: data.max_roommates as (typeof ROOMMATES)[number],
           location_query: data.location_query.trim(),
           latitude: data.latitude,
@@ -173,8 +181,10 @@ export function ListingFlow({ onBackToStart }: { onBackToStart: () => void }) {
         },
       });
       setDone(true);
-    } catch {
-      toast.error("Something went wrong. Your answers are still here — please try again.");
+    } catch (err) {
+      console.error("Listing submission failed", err);
+      const message = err instanceof Error ? err.message : String(err);
+      toast.error(`Something went wrong: ${message}`);
     } finally {
       setSubmitting(false);
     }
@@ -187,8 +197,8 @@ export function ListingFlow({ onBackToStart }: { onBackToStart: () => void }) {
           Thank you, your accommodation listing has been registered.
         </h3>
         <p className="mt-3 text-sm text-muted-foreground">
-          You will receive a confirmation email at your registered email address. Our matching
-          team will review the listing and contact you as soon as a suitable match is found.
+          You will receive a confirmation email at your registered email address. Our matching team
+          will review the listing and contact you as soon as a suitable match is found.
         </p>
         <Button className="mt-6" variant="outline" onClick={onBackToStart}>
           Back to start
@@ -218,22 +228,40 @@ export function ListingFlow({ onBackToStart }: { onBackToStart: () => void }) {
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <Label htmlFor="l-first-name">First name</Label>
-                <Input id="l-first-name" value={data.first_name} onChange={(e) => set("first_name", e.target.value)} />
+                <Input
+                  id="l-first-name"
+                  value={data.first_name}
+                  onChange={(e) => set("first_name", e.target.value)}
+                />
                 <FieldError message={errors.first_name} />
               </div>
               <div>
                 <Label htmlFor="l-last-name">Surname</Label>
-                <Input id="l-last-name" value={data.last_name} onChange={(e) => set("last_name", e.target.value)} />
+                <Input
+                  id="l-last-name"
+                  value={data.last_name}
+                  onChange={(e) => set("last_name", e.target.value)}
+                />
                 <FieldError message={errors.last_name} />
               </div>
               <div>
                 <Label htmlFor="l-email">Email address</Label>
-                <Input id="l-email" type="email" value={data.email} onChange={(e) => set("email", e.target.value)} />
+                <Input
+                  id="l-email"
+                  type="email"
+                  value={data.email}
+                  onChange={(e) => set("email", e.target.value)}
+                />
                 <FieldError message={errors.email} />
               </div>
               <div>
                 <Label htmlFor="l-phone">Phone number</Label>
-                <Input id="l-phone" type="tel" value={data.phone} onChange={(e) => set("phone", e.target.value)} />
+                <Input
+                  id="l-phone"
+                  type="tel"
+                  value={data.phone}
+                  onChange={(e) => set("phone", e.target.value)}
+                />
                 <FieldError message={errors.phone} />
               </div>
             </div>
@@ -244,14 +272,22 @@ export function ListingFlow({ onBackToStart }: { onBackToStart: () => void }) {
           <WizardStep title="Availability and contract">
             <div>
               <Label>Is the room currently available?</Label>
-              <RadioGroup value={data.available_now} onValueChange={(v) => set("available_now", v)} className="mt-2">
+              <RadioGroup
+                value={data.available_now}
+                onValueChange={(v) => set("available_now", v)}
+                className="mt-2"
+              >
                 <div className="flex items-center gap-2">
                   <RadioGroupItem value="yes" id="l-avail-yes" />
-                  <Label htmlFor="l-avail-yes" className="font-normal">Yes</Label>
+                  <Label htmlFor="l-avail-yes" className="font-normal">
+                    Yes
+                  </Label>
                 </div>
                 <div className="flex items-center gap-2">
                   <RadioGroupItem value="no" id="l-avail-no" />
-                  <Label htmlFor="l-avail-no" className="font-normal">No</Label>
+                  <Label htmlFor="l-avail-no" className="font-normal">
+                    No
+                  </Label>
                 </div>
               </RadioGroup>
               <FieldError message={errors.available_now} />
@@ -260,7 +296,9 @@ export function ListingFlow({ onBackToStart }: { onBackToStart: () => void }) {
             {data.available_now && (
               <div>
                 <Label htmlFor="l-avail-date">
-                  {data.available_now === "yes" ? "Available from" : "From what date will it be available?"}
+                  {data.available_now === "yes"
+                    ? "Available from"
+                    : "From what date will it be available?"}
                 </Label>
                 <Input
                   id="l-avail-date"
@@ -274,14 +312,22 @@ export function ListingFlow({ onBackToStart }: { onBackToStart: () => void }) {
 
             <div>
               <Label>Is the room available for long-term stay?</Label>
-              <RadioGroup value={data.long_term} onValueChange={(v) => set("long_term", v)} className="mt-2">
+              <RadioGroup
+                value={data.long_term}
+                onValueChange={(v) => set("long_term", v)}
+                className="mt-2"
+              >
                 <div className="flex items-center gap-2">
                   <RadioGroupItem value="yes" id="l-long-yes" />
-                  <Label htmlFor="l-long-yes" className="font-normal">Yes</Label>
+                  <Label htmlFor="l-long-yes" className="font-normal">
+                    Yes
+                  </Label>
                 </div>
                 <div className="flex items-center gap-2">
                   <RadioGroupItem value="no" id="l-long-no" />
-                  <Label htmlFor="l-long-no" className="font-normal">No</Label>
+                  <Label htmlFor="l-long-no" className="font-normal">
+                    No
+                  </Label>
                 </div>
               </RadioGroup>
               <FieldError message={errors.long_term} />
@@ -289,11 +335,17 @@ export function ListingFlow({ onBackToStart }: { onBackToStart: () => void }) {
 
             <div>
               <Label>Is a registered contract available during the stay?</Label>
-              <RadioGroup value={data.contract_status} onValueChange={(v) => set("contract_status", v)} className="mt-2">
+              <RadioGroup
+                value={data.contract_status}
+                onValueChange={(v) => set("contract_status", v)}
+                className="mt-2"
+              >
                 {CONTRACT_STATUSES.map((opt) => (
                   <div key={opt.value} className="flex items-center gap-2">
                     <RadioGroupItem value={opt.value} id={`l-contract-${opt.value}`} />
-                    <Label htmlFor={`l-contract-${opt.value}`} className="font-normal">{opt.label}</Label>
+                    <Label htmlFor={`l-contract-${opt.value}`} className="font-normal">
+                      {opt.label}
+                    </Label>
                   </div>
                 ))}
               </RadioGroup>
@@ -319,11 +371,17 @@ export function ListingFlow({ onBackToStart }: { onBackToStart: () => void }) {
           <WizardStep title="Listing details">
             <div>
               <Label>Type of room</Label>
-              <RadioGroup value={data.room_type} onValueChange={(v) => set("room_type", v)} className="mt-2">
+              <RadioGroup
+                value={data.room_type}
+                onValueChange={(v) => set("room_type", v)}
+                className="mt-2"
+              >
                 {ROOM_TYPES.map((opt) => (
                   <div key={opt.value} className="flex items-center gap-2">
                     <RadioGroupItem value={opt.value} id={`l-room-${opt.value}`} />
-                    <Label htmlFor={`l-room-${opt.value}`} className="font-normal">{opt.label}</Label>
+                    <Label htmlFor={`l-room-${opt.value}`} className="font-normal">
+                      {opt.label}
+                    </Label>
                   </div>
                 ))}
               </RadioGroup>
@@ -334,19 +392,33 @@ export function ListingFlow({ onBackToStart }: { onBackToStart: () => void }) {
               <div>
                 <Label htmlFor="l-rent">What is the monthly rent, including bills?</Label>
                 <Select value={data.rent_range} onValueChange={(v) => set("rent_range", v)}>
-                  <SelectTrigger id="l-rent" className="mt-1"><SelectValue placeholder="Select a range" /></SelectTrigger>
+                  <SelectTrigger id="l-rent" className="mt-1">
+                    <SelectValue placeholder="Select a range" />
+                  </SelectTrigger>
                   <SelectContent>
-                    {RENTS.map((r) => <SelectItem key={r} value={r}>{r}</SelectItem>)}
+                    {RENTS.map((r) => (
+                      <SelectItem key={r} value={r}>
+                        {r}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
                 <FieldError message={errors.rent_range} />
               </div>
               <div>
-                <Label htmlFor="l-roommates">How many people share the same bathroom/kitchen?</Label>
+                <Label htmlFor="l-roommates">
+                  How many people share the same bathroom/kitchen?
+                </Label>
                 <Select value={data.max_roommates} onValueChange={(v) => set("max_roommates", v)}>
-                  <SelectTrigger id="l-roommates" className="mt-1"><SelectValue placeholder="Select" /></SelectTrigger>
+                  <SelectTrigger id="l-roommates" className="mt-1">
+                    <SelectValue placeholder="Select" />
+                  </SelectTrigger>
                   <SelectContent>
-                    {ROOMMATES.map((r) => <SelectItem key={r} value={r}>{r}</SelectItem>)}
+                    {ROOMMATES.map((r) => (
+                      <SelectItem key={r} value={r}>
+                        {r}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
                 <FieldError message={errors.max_roommates} />
@@ -355,11 +427,17 @@ export function ListingFlow({ onBackToStart }: { onBackToStart: () => void }) {
 
             <div>
               <Label>Gender preference</Label>
-              <RadioGroup value={data.gender_preference} onValueChange={(v) => set("gender_preference", v)} className="mt-2">
+              <RadioGroup
+                value={data.gender_preference}
+                onValueChange={(v) => set("gender_preference", v)}
+                className="mt-2"
+              >
                 {GENDER_PREFERENCES.map((opt) => (
                   <div key={opt.value} className="flex items-center gap-2">
                     <RadioGroupItem value={opt.value} id={`l-gender-${opt.value}`} />
-                    <Label htmlFor={`l-gender-${opt.value}`} className="font-normal">{opt.label}</Label>
+                    <Label htmlFor={`l-gender-${opt.value}`} className="font-normal">
+                      {opt.label}
+                    </Label>
                   </div>
                 ))}
               </RadioGroup>
@@ -392,14 +470,22 @@ export function ListingFlow({ onBackToStart }: { onBackToStart: () => void }) {
 
             <div>
               <Label>Is the room modern?</Label>
-              <RadioGroup value={data.is_modern} onValueChange={(v) => set("is_modern", v)} className="mt-2">
+              <RadioGroup
+                value={data.is_modern}
+                onValueChange={(v) => set("is_modern", v)}
+                className="mt-2"
+              >
                 <div className="flex items-center gap-2">
                   <RadioGroupItem value="yes" id="l-modern-yes" />
-                  <Label htmlFor="l-modern-yes" className="font-normal">Yes</Label>
+                  <Label htmlFor="l-modern-yes" className="font-normal">
+                    Yes
+                  </Label>
                 </div>
                 <div className="flex items-center gap-2">
                   <RadioGroupItem value="no" id="l-modern-no" />
-                  <Label htmlFor="l-modern-no" className="font-normal">No</Label>
+                  <Label htmlFor="l-modern-no" className="font-normal">
+                    No
+                  </Label>
                 </div>
               </RadioGroup>
               <FieldError message={errors.is_modern} />
@@ -407,13 +493,21 @@ export function ListingFlow({ onBackToStart }: { onBackToStart: () => void }) {
 
             <div>
               <Label htmlFor="l-notes">Any other notes we should know? (optional)</Label>
-              <Textarea id="l-notes" rows={3} value={data.additional_notes} onChange={(e) => set("additional_notes", e.target.value)} />
+              <Textarea
+                id="l-notes"
+                rows={3}
+                value={data.additional_notes}
+                onChange={(e) => set("additional_notes", e.target.value)}
+              />
             </div>
           </WizardStep>
         )}
 
         {step === 4 && (
-          <WizardStep title="Add photos" description="Upload up to 5 photos of the room or property. Photos are optional; you can upload them later if needed. We may use them on our social media channels if we cannot find a match immediately.">
+          <WizardStep
+            title="Add photos"
+            description="Upload up to 5 photos of the room or property. Photos are optional; you can upload them later if needed. We may use them on our social media channels if we cannot find a match immediately."
+          >
             <ImageUploader value={data.images} onChange={(urls) => set("images", urls)} />
 
             {data.images.length > 0 && (
@@ -432,7 +526,11 @@ export function ListingFlow({ onBackToStart }: { onBackToStart: () => void }) {
             <FieldError message={errors.photo_consent} />
 
             <div className="flex items-start gap-2 rounded-xl border border-border p-3">
-              <Checkbox id="l-consent" checked={data.consent} onCheckedChange={(v) => set("consent", v === true)} />
+              <Checkbox
+                id="l-consent"
+                checked={data.consent}
+                onCheckedChange={(v) => set("consent", v === true)}
+              />
               <Label htmlFor="l-consent" className="font-normal text-sm">
                 I agree to Milan Students Network storing and using this information to review and
                 publish this listing, in line with the privacy policy.
