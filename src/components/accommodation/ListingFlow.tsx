@@ -6,6 +6,7 @@ import { formatSubmitError } from "@/lib/format-submit-error";
 import { ProgressBar, WizardStep, WizardNav, FieldError } from "./WizardShell";
 import { LocationPicker } from "./LocationPicker";
 import { ImageUploader } from "./ImageUploader";
+import { VideoUploader } from "./VideoUploader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -527,20 +528,14 @@ export function ListingFlow({ onBackToStart }: { onBackToStart: () => void }) {
           >
             <ImageUploader value={data.images} onChange={(urls) => set("images", urls)} />
 
-            <div>
-              <Label htmlFor="l-video-url">Video walkthrough (optional)</Label>
-              <Input
-                id="l-video-url"
-                type="url"
-                placeholder="https://youtu.be/…"
-                value={data.video_url}
-                onChange={(e) => set("video_url", e.target.value)}
-              />
-              <p className="mt-1 text-xs text-muted-foreground">
-                Have a video tour? Upload it to YouTube (unlisted is fine) and paste the link here.
-              </p>
-              <FieldError message={errors.video_url} />
-            </div>
+            <VideoUploader
+              value={data.video_url}
+              onChange={(url) => set("video_url", url)}
+              title={`${ROOM_TYPES.find((r) => r.value === data.room_type)?.label || "Room"} in ${
+                data.location_query || "Milan"
+              }`}
+            />
+            <FieldError message={errors.video_url} />
 
             {data.images.length > 0 && (
               <div className="flex items-start gap-2 rounded-xl border border-border p-3">
