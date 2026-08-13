@@ -58,6 +58,7 @@ export type Database = {
           students_only: boolean
           title: string
           updated_at: string
+          video_url: string | null
         }
         Insert: {
           additional_notes?: string | null
@@ -102,6 +103,7 @@ export type Database = {
           students_only?: boolean
           title: string
           updated_at?: string
+          video_url?: string | null
         }
         Update: {
           additional_notes?: string | null
@@ -146,6 +148,7 @@ export type Database = {
           students_only?: boolean
           title?: string
           updated_at?: string
+          video_url?: string | null
         }
         Relationships: []
       }

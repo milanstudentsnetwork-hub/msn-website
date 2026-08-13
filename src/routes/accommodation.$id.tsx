@@ -27,6 +27,23 @@ function formatLabel(value: string) {
     .join(" ");
 }
 
+/** Turn a youtube.com/watch or youtu.be link into an embeddable player URL. */
+function youtubeEmbedUrl(url: string): string | null {
+  try {
+    const parsed = new URL(url);
+    if (parsed.hostname.includes("youtu.be")) {
+      return `https://www.youtube.com/embed${parsed.pathname}`;
+    }
+    if (parsed.hostname.includes("youtube.com")) {
+      const videoId = parsed.searchParams.get("v");
+      return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
+    }
+  } catch {
+    return null;
+  }
+  return null;
+}
+
 export const Route = createFileRoute("/accommodation/$id")({
   loader: async ({ context, params }) => {
     const listing = await context.queryClient.ensureQueryData(listingQuery(params.id));
@@ -149,6 +166,36 @@ function ListingDetailPage() {
                 </ul>
               </div>
             )}
+
+            {listing.video_url &&
+              (() => {
+                const embedUrl = youtubeEmbedUrl(listing.video_url);
+                return (
+                  <div className="mt-8">
+                    <h3 className="font-display font-semibold">Video walkthrough</h3>
+                    {embedUrl ? (
+                      <div className="mt-3 aspect-video overflow-hidden rounded-2xl">
+                        <iframe
+                          src={embedUrl}
+                          title="Video walkthrough"
+                          className="size-full"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                        />
+                      </div>
+                    ) : (
+                      <a
+                        href={listing.video_url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="mt-2 inline-block text-sm font-semibold text-accent underline-offset-4 hover:underline"
+                      >
+                        Watch the video walkthrough
+                      </a>
+                    )}
+                  </div>
+                );
+              })()}
           </div>
         </div>
 

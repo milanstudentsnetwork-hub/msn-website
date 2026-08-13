@@ -34,7 +34,7 @@ const accommodationRequestSchema = z
       "€700–€850",
       "More than €850",
     ]),
-    max_roommates: z.enum(["2", "3", "4", "4+"]),
+    max_roommates: z.enum(["1", "2", "3", "4", "4+"]),
     location_preferences: z.string().trim().min(3).max(1000),
     notes: z.string().trim().max(2000).nullable().default(null),
     honeypot: z.string().max(0).optional(),
@@ -93,7 +93,7 @@ const accommodationListingSchema = z
     room_type: z.enum(ROOM_TYPES),
     rent_range: z.enum(["Less than €400", "€400–€550", "€550–€700", "€700–€850", "More than €850"]),
     gender_preference: z.enum(["male_only", "female_only", "no_preference"]),
-    max_roommates: z.enum(["2", "3", "4", "4+"]),
+    max_roommates: z.enum(["1", "2", "3", "4", "4+"]),
     location_query: z.string().trim().min(2).max(200),
     latitude: z.number().nullable().default(null),
     longitude: z.number().nullable().default(null),
@@ -101,6 +101,15 @@ const accommodationListingSchema = z
     is_modern: z.boolean(),
     additional_notes: z.string().trim().max(2000).nullable().default(null),
     images: z.array(z.string().trim().url()).max(5).default([]),
+    video_url: z
+      .string()
+      .trim()
+      .max(300)
+      .nullable()
+      .default(null)
+      .refine((v) => !v || /^https?:\/\/(www\.)?(youtube\.com|youtu\.be)\//.test(v), {
+        message: "Please paste a YouTube video link (youtube.com or youtu.be).",
+      }),
     photo_consent: z.boolean(),
     honeypot: z.string().max(0).optional(),
   })
@@ -164,6 +173,7 @@ export const submitAccommodationListing = createServerFn({ method: "POST" })
         is_modern: data.is_modern,
         additional_notes: data.additional_notes,
         images: data.images,
+        video_url: data.video_url,
         photo_consent: data.photo_consent,
         listing_source: "landlord",
         status: "pending",

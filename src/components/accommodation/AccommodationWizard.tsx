@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Home, Search } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { Home, MessageCircle, Search } from "lucide-react";
 import { RequestFlow } from "./RequestFlow";
 import { ListingFlow } from "./ListingFlow";
 
@@ -40,9 +41,21 @@ export function AccommodationWizard() {
           <span className="grid size-14 place-items-center rounded-2xl bg-secondary/50">
             <Home className="size-6" />
           </span>
-          <span className="font-display font-semibold">I Want to Post an Accommodation Listing</span>
+          <span className="font-display font-semibold">
+            I Want to Post an Accommodation Listing
+          </span>
         </button>
       </div>
+
+      <Link
+        to="/contact"
+        className="lift-tilt mt-4 flex flex-col items-center gap-3 rounded-2xl border-2 border-dashed border-border p-6 text-center transition-colors hover:border-accent"
+      >
+        <span className="grid size-14 place-items-center rounded-2xl bg-muted">
+          <MessageCircle className="size-6" />
+        </span>
+        <span className="font-display font-semibold">Need help with something else? Say hello</span>
+      </Link>
     </div>
   );
 }

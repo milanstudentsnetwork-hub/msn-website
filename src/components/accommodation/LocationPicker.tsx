@@ -27,6 +27,7 @@ export function LocationPicker({
   const [searchInput, setSearchInput] = useState(query);
   const [results, setResults] = useState<GeocodeResult[]>([]);
   const [searching, setSearching] = useState(false);
+  const [noResultsFound, setNoResultsFound] = useState(false);
 
   useEffect(() => setMounted(true), []);
 
@@ -57,12 +58,20 @@ export function LocationPicker({
       const marker = L.marker(start, { draggable: true, icon: pinIcon }).addTo(map);
       marker.on("dragend", () => {
         const pos = marker.getLatLng();
-        onChangeRef.current({ query: searchInputRef.current, latitude: pos.lat, longitude: pos.lng });
+        onChangeRef.current({
+          query: searchInputRef.current,
+          latitude: pos.lat,
+          longitude: pos.lng,
+        });
       });
 
       map.on("click", (e: { latlng: { lat: number; lng: number } }) => {
         marker.setLatLng(e.latlng);
-        onChangeRef.current({ query: searchInputRef.current, latitude: e.latlng.lat, longitude: e.latlng.lng });
+        onChangeRef.current({
+          query: searchInputRef.current,
+          latitude: e.latlng.lat,
+          longitude: e.latlng.lng,
+        });
       });
 
       mapRef.current = map;
@@ -87,6 +96,7 @@ export function LocationPicker({
   async function handleSearch() {
     if (!searchInput.trim()) return;
     setSearching(true);
+    setNoResultsFound(false);
     try {
       const res = await fetch(
         `https://nominatim.openstreetmap.org/search?format=json&limit=5&countrycodes=it&q=${encodeURIComponent(
@@ -95,6 +105,9 @@ export function LocationPicker({
       );
       const data = (await res.json()) as GeocodeResult[];
       setResults(data);
+      // The typed address is already saved either way (via onBlur) — this just
+      // reassures the user that an unmatched address isn't a dead end.
+      setNoResultsFound(data.length === 0);
     } catch {
       setResults([]);
     } finally {
@@ -119,7 +132,10 @@ export function LocationPicker({
         <Input
           id="location-search"
           value={searchInput}
-          onChange={(e) => setSearchInput(e.target.value)}
+          onChange={(e) => {
+            setSearchInput(e.target.value);
+            setNoResultsFound(false);
+          }}
           onBlur={() => onChange({ query: searchInput, latitude, longitude })}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
@@ -139,6 +155,13 @@ export function LocationPicker({
           <Search className="size-4" />
         </button>
       </div>
+
+      {noResultsFound && (
+        <p className="mt-1 text-xs text-muted-foreground">
+          No matches found — no problem, we'll save the address exactly as you typed it. You can
+          still drag the pin or click the map to set the exact spot if you know it.
+        </p>
+      )}
 
       {results.length > 0 && (
         <ul className="mt-1 max-h-40 overflow-y-auto rounded-md border border-border bg-card text-sm shadow-soft">

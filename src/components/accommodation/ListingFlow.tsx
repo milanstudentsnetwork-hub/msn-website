@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { submitAccommodationListing } from "@/lib/submissions.functions";
+import { formatSubmitError } from "@/lib/format-submit-error";
 import { ProgressBar, WizardStep, WizardNav, FieldError } from "./WizardShell";
 import { LocationPicker } from "./LocationPicker";
 import { ImageUploader } from "./ImageUploader";
@@ -11,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
+import { cn } from "@/lib/utils";
 import {
   Select,
   SelectContent,
@@ -24,6 +26,7 @@ import {
   ROOMMATES,
   GENDER_PREFERENCES,
   CONTRACT_STATUSES,
+  todayIso,
 } from "@/lib/accommodation-options";
 
 const TOTAL_STEPS = 4;
@@ -49,6 +52,7 @@ type FormState = {
   is_modern: string;
   additional_notes: string;
   images: string[];
+  video_url: string;
   photo_consent: boolean;
   consent: boolean;
   honeypot: string;
@@ -75,6 +79,7 @@ const emptyForm: FormState = {
   is_modern: "",
   additional_notes: "",
   images: [],
+  video_url: "",
   photo_consent: false,
   consent: false,
   honeypot: "",
@@ -88,16 +93,13 @@ function validateStep(step: number, data: FormState): FormErrors {
     if (!data.first_name.trim()) errors.first_name = "Required.";
     if (!data.last_name.trim()) errors.last_name = "Required.";
     if (!/^\S+@\S+\.\S+$/.test(data.email)) errors.email = "Enter a valid email address.";
-    if (!data.phone.trim()) errors.phone = "Required.";
+    if (data.phone.trim().length < 3) errors.phone = "Enter a valid phone number.";
   }
   if (step === 2) {
     if (!data.available_now) errors.available_now = "Please select an option.";
     if (!data.available_from) errors.available_from = "Please choose a date.";
     if (!data.long_term) errors.long_term = "Please select an option.";
     if (!data.contract_status) errors.contract_status = "Please select an option.";
-    if (data.contract_status === "explain" && !data.contract_notes.trim()) {
-      errors.contract_notes = "Please explain the contract situation.";
-    }
   }
   if (step === 3) {
     if (!data.room_type) errors.room_type = "Please select an option.";
@@ -112,6 +114,12 @@ function validateStep(step: number, data: FormState): FormErrors {
   if (step === 4) {
     if (data.images.length > 0 && !data.photo_consent) {
       errors.photo_consent = "Please confirm you have permission to share these photos.";
+    }
+    if (
+      data.video_url.trim() &&
+      !/^https?:\/\/(www\.)?(youtube\.com|youtu\.be)\//.test(data.video_url.trim())
+    ) {
+      errors.video_url = "Please paste a YouTube video link (youtube.com or youtu.be).";
     }
     if (!data.consent) errors.consent = "Please confirm before submitting.";
   }
@@ -176,6 +184,7 @@ export function ListingFlow({ onBackToStart }: { onBackToStart: () => void }) {
           is_modern: data.is_modern === "yes",
           additional_notes: data.additional_notes.trim() || null,
           images: data.images,
+          video_url: data.video_url.trim() || null,
           photo_consent: data.photo_consent,
           honeypot: data.honeypot || undefined,
         },
@@ -183,8 +192,7 @@ export function ListingFlow({ onBackToStart }: { onBackToStart: () => void }) {
       setDone(true);
     } catch (err) {
       console.error("Listing submission failed", err);
-      const message = err instanceof Error ? err.message : String(err);
-      toast.error(`Something went wrong: ${message}`);
+      toast.error(`Something went wrong: ${formatSubmitError(err)}`);
     } finally {
       setSubmitting(false);
     }
@@ -274,7 +282,11 @@ export function ListingFlow({ onBackToStart }: { onBackToStart: () => void }) {
               <Label>Is the room currently available?</Label>
               <RadioGroup
                 value={data.available_now}
-                onValueChange={(v) => set("available_now", v)}
+                onValueChange={(v) => {
+                  set("available_now", v);
+                  // Available now means the start date is today — no need to ask.
+                  set("available_from", v === "yes" ? todayIso() : "");
+                }}
                 className="mt-2"
               >
                 <div className="flex items-center gap-2">
@@ -293,13 +305,9 @@ export function ListingFlow({ onBackToStart }: { onBackToStart: () => void }) {
               <FieldError message={errors.available_now} />
             </div>
 
-            {data.available_now && (
+            {data.available_now === "no" && (
               <div>
-                <Label htmlFor="l-avail-date">
-                  {data.available_now === "yes"
-                    ? "Available from"
-                    : "From what date will it be available?"}
-                </Label>
+                <Label htmlFor="l-avail-date">From what date will it be available?</Label>
                 <Input
                   id="l-avail-date"
                   type="date"
@@ -340,7 +348,7 @@ export function ListingFlow({ onBackToStart }: { onBackToStart: () => void }) {
                 onValueChange={(v) => set("contract_status", v)}
                 className="mt-2"
               >
-                {CONTRACT_STATUSES.map((opt) => (
+                {CONTRACT_STATUSES.filter((opt) => opt.value !== "explain").map((opt) => (
                   <div key={opt.value} className="flex items-center gap-2">
                     <RadioGroupItem value={opt.value} id={`l-contract-${opt.value}`} />
                     <Label htmlFor={`l-contract-${opt.value}`} className="font-normal">
@@ -352,9 +360,11 @@ export function ListingFlow({ onBackToStart }: { onBackToStart: () => void }) {
               <FieldError message={errors.contract_status} />
             </div>
 
-            {data.contract_status === "explain" && (
+            {data.contract_status === "no" && (
               <div>
-                <Label htmlFor="l-contract-notes">Please explain</Label>
+                <Label htmlFor="l-contract-notes">
+                  Explain why / Is it possible to provide hospitality? (optional)
+                </Label>
                 <Textarea
                   id="l-contract-notes"
                   rows={3}
@@ -373,7 +383,12 @@ export function ListingFlow({ onBackToStart }: { onBackToStart: () => void }) {
               <Label>Type of room</Label>
               <RadioGroup
                 value={data.room_type}
-                onValueChange={(v) => set("room_type", v)}
+                onValueChange={(v) => {
+                  set("room_type", v);
+                  // A studio has no shared bathroom/kitchen — nobody to ask about.
+                  if (v === "studio") set("max_roommates", "1");
+                  else if (data.max_roommates === "1") set("max_roommates", "");
+                }}
                 className="mt-2"
               >
                 {ROOM_TYPES.map((opt) => (
@@ -388,7 +403,7 @@ export function ListingFlow({ onBackToStart }: { onBackToStart: () => void }) {
               <FieldError message={errors.room_type} />
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className={cn("grid gap-4", data.room_type !== "studio" && "sm:grid-cols-2")}>
               <div>
                 <Label htmlFor="l-rent">What is the monthly rent, including bills?</Label>
                 <Select value={data.rent_range} onValueChange={(v) => set("rent_range", v)}>
@@ -405,24 +420,26 @@ export function ListingFlow({ onBackToStart }: { onBackToStart: () => void }) {
                 </Select>
                 <FieldError message={errors.rent_range} />
               </div>
-              <div>
-                <Label htmlFor="l-roommates">
-                  How many people share the same bathroom/kitchen?
-                </Label>
-                <Select value={data.max_roommates} onValueChange={(v) => set("max_roommates", v)}>
-                  <SelectTrigger id="l-roommates" className="mt-1">
-                    <SelectValue placeholder="Select" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {ROOMMATES.map((r) => (
-                      <SelectItem key={r} value={r}>
-                        {r}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FieldError message={errors.max_roommates} />
-              </div>
+              {data.room_type !== "studio" && (
+                <div>
+                  <Label htmlFor="l-roommates">
+                    How many people share the same bathroom/kitchen?
+                  </Label>
+                  <Select value={data.max_roommates} onValueChange={(v) => set("max_roommates", v)}>
+                    <SelectTrigger id="l-roommates" className="mt-1">
+                      <SelectValue placeholder="Select" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {ROOMMATES.filter((r) => r !== "1").map((r) => (
+                        <SelectItem key={r} value={r}>
+                          {r}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FieldError message={errors.max_roommates} />
+                </div>
+              )}
             </div>
 
             <div>
@@ -509,6 +526,21 @@ export function ListingFlow({ onBackToStart }: { onBackToStart: () => void }) {
             description="Upload up to 5 photos of the room or property. Photos are optional; you can upload them later if needed. We may use them on our social media channels if we cannot find a match immediately."
           >
             <ImageUploader value={data.images} onChange={(urls) => set("images", urls)} />
+
+            <div>
+              <Label htmlFor="l-video-url">Video walkthrough (optional)</Label>
+              <Input
+                id="l-video-url"
+                type="url"
+                placeholder="https://youtu.be/…"
+                value={data.video_url}
+                onChange={(e) => set("video_url", e.target.value)}
+              />
+              <p className="mt-1 text-xs text-muted-foreground">
+                Have a video tour? Upload it to YouTube (unlisted is fine) and paste the link here.
+              </p>
+              <FieldError message={errors.video_url} />
+            </div>
 
             {data.images.length > 0 && (
               <div className="flex items-start gap-2 rounded-xl border border-border p-3">

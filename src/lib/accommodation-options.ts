@@ -8,9 +8,15 @@ export const ROOM_TYPES = [
   { value: "shared_bed", label: "Shared bed space (sharing a room with another person)" },
 ] as const;
 
-export const RENTS = ["Less than €400", "€400–€550", "€550–€700", "€700–€850", "More than €850"] as const;
+export const RENTS = [
+  "Less than €400",
+  "€400–€550",
+  "€550–€700",
+  "€700–€850",
+  "More than €850",
+] as const;
 
-export const ROOMMATES = ["2", "3", "4", "4+"] as const;
+export const ROOMMATES = ["1", "2", "3", "4", "4+"] as const;
 
 export const GENDER_PREFERENCES = [
   { value: "male_only", label: "Only for male" },
@@ -23,3 +29,9 @@ export const CONTRACT_STATUSES = [
   { value: "no", label: "No" },
   { value: "explain", label: "Explain why / Is it possible to provide hospitality?" },
 ] as const;
+
+/** Today's date as YYYY-MM-DD, for auto-filling "available from"/"move in" dates
+ * when the user says they need it immediately rather than asking them to pick it. */
+export function todayIso() {
+  return new Date().toISOString().slice(0, 10);
+}

@@ -2,6 +2,9 @@ import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { submitAccommodationRequest } from "@/lib/submissions.functions";
+import { formatSubmitError } from "@/lib/format-submit-error";
+import { cn } from "@/lib/utils";
+import { todayIso } from "@/lib/accommodation-options";
 import { ProgressBar, WizardStep, WizardNav, FieldError } from "./WizardShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,7 +29,7 @@ const ROOM_TYPES = [
 ];
 
 const BUDGETS = ["Less than €400", "€400–€550", "€550–€700", "€700–€850", "More than €850"];
-const ROOMMATES = ["2", "3", "4", "4+"];
+const ROOMMATES = ["1", "2", "3", "4", "4+"];
 
 type FormState = {
   first_name: string;
@@ -76,13 +79,14 @@ function validateStep(step: number, data: FormState): FormErrors {
     if (!data.first_name.trim()) errors.first_name = "Required.";
     if (!data.last_name.trim()) errors.last_name = "Required.";
     if (!/^\S+@\S+\.\S+$/.test(data.email)) errors.email = "Enter a valid email address.";
-    if (!data.phone.trim()) errors.phone = "Required.";
+    if (data.phone.trim().length < 3) errors.phone = "Enter a valid phone number.";
     if (!data.gender) errors.gender = "Please select an option.";
   }
   if (step === 2) {
     if (!data.move_immediately) errors.move_immediately = "Please select an option.";
+    if (data.move_immediately === "no" && !data.date_from)
+      errors.date_from = "Please choose a date.";
     if (!data.stay_type) errors.stay_type = "Please select an option.";
-    if (data.stay_type && !data.date_from) errors.date_from = "Please choose a date.";
     if (data.stay_type === "short_term" && !data.date_until) {
       errors.date_until = "Please choose an end date.";
     }
@@ -94,7 +98,8 @@ function validateStep(step: number, data: FormState): FormErrors {
     if (!data.room_type) errors.room_type = "Please select an option.";
     if (!data.budget_range) errors.budget_range = "Please select an option.";
     if (!data.max_roommates) errors.max_roommates = "Please select an option.";
-    if (!data.location_preferences.trim()) errors.location_preferences = "Please tell us your preferred area.";
+    if (!data.location_preferences.trim())
+      errors.location_preferences = "Please tell us your preferred area.";
     if (!data.consent) errors.consent = "Please confirm before submitting.";
   }
   return errors;
@@ -156,8 +161,9 @@ export function RequestFlow({ onBackToStart }: { onBackToStart: () => void }) {
         },
       });
       setDone(true);
-    } catch {
-      toast.error("Something went wrong. Your answers are still here — please try again.");
+    } catch (err) {
+      console.error("Request submission failed", err);
+      toast.error(`Something went wrong: ${formatSubmitError(err)}`);
     } finally {
       setSubmitting(false);
     }
@@ -166,11 +172,13 @@ export function RequestFlow({ onBackToStart }: { onBackToStart: () => void }) {
   if (done) {
     return (
       <div className="rounded-3xl border border-border bg-card p-8 text-center">
-        <h3 className="font-display text-xl font-semibold">Thank you, your request has been registered.</h3>
+        <h3 className="font-display text-xl font-semibold">
+          Thank you, your request has been registered.
+        </h3>
         <p className="mt-3 text-sm text-muted-foreground">
-          You will receive a confirmation email at your registered email address. Our matching
-          team is working to find suitable accommodation and will contact you as soon as a match
-          is available.
+          You will receive a confirmation email at your registered email address. Our matching team
+          is working to find suitable accommodation and will contact you as soon as a match is
+          available.
         </p>
         <Button className="mt-6" variant="outline" onClick={onBackToStart}>
           Back to start
@@ -201,28 +209,50 @@ export function RequestFlow({ onBackToStart }: { onBackToStart: () => void }) {
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <Label htmlFor="req-first-name">First name</Label>
-                <Input id="req-first-name" value={data.first_name} onChange={(e) => set("first_name", e.target.value)} />
+                <Input
+                  id="req-first-name"
+                  value={data.first_name}
+                  onChange={(e) => set("first_name", e.target.value)}
+                />
                 <FieldError message={errors.first_name} />
               </div>
               <div>
                 <Label htmlFor="req-last-name">Surname</Label>
-                <Input id="req-last-name" value={data.last_name} onChange={(e) => set("last_name", e.target.value)} />
+                <Input
+                  id="req-last-name"
+                  value={data.last_name}
+                  onChange={(e) => set("last_name", e.target.value)}
+                />
                 <FieldError message={errors.last_name} />
               </div>
               <div>
                 <Label htmlFor="req-email">Email address</Label>
-                <Input id="req-email" type="email" value={data.email} onChange={(e) => set("email", e.target.value)} />
+                <Input
+                  id="req-email"
+                  type="email"
+                  value={data.email}
+                  onChange={(e) => set("email", e.target.value)}
+                />
                 <FieldError message={errors.email} />
               </div>
               <div>
                 <Label htmlFor="req-phone">Phone number</Label>
-                <Input id="req-phone" type="tel" value={data.phone} onChange={(e) => set("phone", e.target.value)} />
+                <Input
+                  id="req-phone"
+                  type="tel"
+                  value={data.phone}
+                  onChange={(e) => set("phone", e.target.value)}
+                />
                 <FieldError message={errors.phone} />
               </div>
             </div>
             <div>
               <Label>Gender, for accommodation matching purposes only</Label>
-              <RadioGroup value={data.gender} onValueChange={(v) => set("gender", v)} className="mt-2">
+              <RadioGroup
+                value={data.gender}
+                onValueChange={(v) => set("gender", v)}
+                className="mt-2"
+              >
                 {[
                   { value: "male", label: "Male" },
                   { value: "female", label: "Female" },
@@ -230,7 +260,9 @@ export function RequestFlow({ onBackToStart }: { onBackToStart: () => void }) {
                 ].map(({ value, label }) => (
                   <div key={value} className="flex items-center gap-2">
                     <RadioGroupItem value={value} id={`req-gender-${value}`} />
-                    <Label htmlFor={`req-gender-${value}`} className="font-normal">{label}</Label>
+                    <Label htmlFor={`req-gender-${value}`} className="font-normal">
+                      {label}
+                    </Label>
                   </div>
                 ))}
               </RadioGroup>
@@ -243,48 +275,77 @@ export function RequestFlow({ onBackToStart }: { onBackToStart: () => void }) {
           <WizardStep title="Urgency and stay type">
             <div>
               <Label>Would you like to find accommodation immediately?</Label>
-              <RadioGroup value={data.move_immediately} onValueChange={(v) => set("move_immediately", v)} className="mt-2">
+              <RadioGroup
+                value={data.move_immediately}
+                onValueChange={(v) => {
+                  set("move_immediately", v);
+                  // Immediately means the start date is today — no need to ask.
+                  set("date_from", v === "yes" ? todayIso() : "");
+                }}
+                className="mt-2"
+              >
                 <div className="flex items-center gap-2">
                   <RadioGroupItem value="yes" id="req-urgent-yes" />
-                  <Label htmlFor="req-urgent-yes" className="font-normal">Yes, I need to move immediately</Label>
+                  <Label htmlFor="req-urgent-yes" className="font-normal">
+                    Yes, I need to move immediately
+                  </Label>
                 </div>
                 <div className="flex items-center gap-2">
                   <RadioGroupItem value="no" id="req-urgent-no" />
-                  <Label htmlFor="req-urgent-no" className="font-normal">No</Label>
+                  <Label htmlFor="req-urgent-no" className="font-normal">
+                    No
+                  </Label>
                 </div>
               </RadioGroup>
               <FieldError message={errors.move_immediately} />
             </div>
 
+            {data.move_immediately === "no" && (
+              <div>
+                <Label htmlFor="req-date-from">From what date would you like to move in?</Label>
+                <Input
+                  id="req-date-from"
+                  type="date"
+                  value={data.date_from}
+                  onChange={(e) => set("date_from", e.target.value)}
+                />
+                <FieldError message={errors.date_from} />
+              </div>
+            )}
+
             <div>
               <Label>Are you looking for short-term or long-term accommodation?</Label>
-              <RadioGroup value={data.stay_type} onValueChange={(v) => set("stay_type", v)} className="mt-2">
+              <RadioGroup
+                value={data.stay_type}
+                onValueChange={(v) => set("stay_type", v)}
+                className="mt-2"
+              >
                 <div className="flex items-center gap-2">
                   <RadioGroupItem value="short_term" id="req-stay-short" />
-                  <Label htmlFor="req-stay-short" className="font-normal">Short-term</Label>
+                  <Label htmlFor="req-stay-short" className="font-normal">
+                    Short-term
+                  </Label>
                 </div>
                 <div className="flex items-center gap-2">
                   <RadioGroupItem value="long_term" id="req-stay-long" />
-                  <Label htmlFor="req-stay-long" className="font-normal">Long-term</Label>
+                  <Label htmlFor="req-stay-long" className="font-normal">
+                    Long-term
+                  </Label>
                 </div>
               </RadioGroup>
               <FieldError message={errors.stay_type} />
             </div>
 
-            {data.stay_type && (
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <Label htmlFor="req-date-from">From what date?</Label>
-                  <Input id="req-date-from" type="date" value={data.date_from} onChange={(e) => set("date_from", e.target.value)} />
-                  <FieldError message={errors.date_from} />
-                </div>
-                {data.stay_type === "short_term" && (
-                  <div>
-                    <Label htmlFor="req-date-until">Until what date?</Label>
-                    <Input id="req-date-until" type="date" value={data.date_until} onChange={(e) => set("date_until", e.target.value)} />
-                    <FieldError message={errors.date_until} />
-                  </div>
-                )}
+            {data.stay_type === "short_term" && (
+              <div>
+                <Label htmlFor="req-date-until">Until what date?</Label>
+                <Input
+                  id="req-date-until"
+                  type="date"
+                  value={data.date_until}
+                  onChange={(e) => set("date_until", e.target.value)}
+                />
+                <FieldError message={errors.date_until} />
               </div>
             )}
           </WizardStep>
@@ -294,14 +355,22 @@ export function RequestFlow({ onBackToStart }: { onBackToStart: () => void }) {
           <WizardStep title="Contract">
             <div>
               <Label>Would you need a registered contract?</Label>
-              <RadioGroup value={data.needs_contract} onValueChange={(v) => set("needs_contract", v)} className="mt-2">
+              <RadioGroup
+                value={data.needs_contract}
+                onValueChange={(v) => set("needs_contract", v)}
+                className="mt-2"
+              >
                 <div className="flex items-center gap-2">
                   <RadioGroupItem value="yes" id="req-contract-yes" />
-                  <Label htmlFor="req-contract-yes" className="font-normal">Yes</Label>
+                  <Label htmlFor="req-contract-yes" className="font-normal">
+                    Yes
+                  </Label>
                 </div>
                 <div className="flex items-center gap-2">
                   <RadioGroupItem value="no" id="req-contract-no" />
-                  <Label htmlFor="req-contract-no" className="font-normal">No, I just need a good space</Label>
+                  <Label htmlFor="req-contract-no" className="font-normal">
+                    No, I just need a good space
+                  </Label>
                 </div>
               </RadioGroup>
               <FieldError message={errors.needs_contract} />
@@ -313,38 +382,65 @@ export function RequestFlow({ onBackToStart }: { onBackToStart: () => void }) {
           <WizardStep title="Accommodation preferences">
             <div>
               <Label>What type of room are you looking for?</Label>
-              <RadioGroup value={data.room_type} onValueChange={(v) => set("room_type", v)} className="mt-2">
+              <RadioGroup
+                value={data.room_type}
+                onValueChange={(v) => {
+                  set("room_type", v);
+                  // A studio has no shared bathroom/kitchen — nobody to ask about.
+                  if (v === "studio") set("max_roommates", "1");
+                  else if (data.max_roommates === "1") set("max_roommates", "");
+                }}
+                className="mt-2"
+              >
                 {ROOM_TYPES.map((opt) => (
                   <div key={opt.value} className="flex items-center gap-2">
                     <RadioGroupItem value={opt.value} id={`req-room-${opt.value}`} />
-                    <Label htmlFor={`req-room-${opt.value}`} className="font-normal">{opt.label}</Label>
+                    <Label htmlFor={`req-room-${opt.value}`} className="font-normal">
+                      {opt.label}
+                    </Label>
                   </div>
                 ))}
               </RadioGroup>
               <FieldError message={errors.room_type} />
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className={cn("grid gap-4", data.room_type !== "studio" && "sm:grid-cols-2")}>
               <div>
                 <Label htmlFor="req-budget">What is your monthly budget, including bills?</Label>
                 <Select value={data.budget_range} onValueChange={(v) => set("budget_range", v)}>
-                  <SelectTrigger id="req-budget" className="mt-1"><SelectValue placeholder="Select a range" /></SelectTrigger>
+                  <SelectTrigger id="req-budget" className="mt-1">
+                    <SelectValue placeholder="Select a range" />
+                  </SelectTrigger>
                   <SelectContent>
-                    {BUDGETS.map((b) => <SelectItem key={b} value={b}>{b}</SelectItem>)}
+                    {BUDGETS.map((b) => (
+                      <SelectItem key={b} value={b}>
+                        {b}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
                 <FieldError message={errors.budget_range} />
               </div>
-              <div>
-                <Label htmlFor="req-roommates">Up to how many people are you comfortable sharing the bathroom/kitchen with?</Label>
-                <Select value={data.max_roommates} onValueChange={(v) => set("max_roommates", v)}>
-                  <SelectTrigger id="req-roommates" className="mt-1"><SelectValue placeholder="Select" /></SelectTrigger>
-                  <SelectContent>
-                    {ROOMMATES.map((r) => <SelectItem key={r} value={r}>{r}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-                <FieldError message={errors.max_roommates} />
-              </div>
+              {data.room_type !== "studio" && (
+                <div>
+                  <Label htmlFor="req-roommates">
+                    Up to how many people are you comfortable sharing the bathroom/kitchen with?
+                  </Label>
+                  <Select value={data.max_roommates} onValueChange={(v) => set("max_roommates", v)}>
+                    <SelectTrigger id="req-roommates" className="mt-1">
+                      <SelectValue placeholder="Select" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {ROOMMATES.filter((r) => r !== "1").map((r) => (
+                        <SelectItem key={r} value={r}>
+                          {r}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FieldError message={errors.max_roommates} />
+                </div>
+              )}
             </div>
 
             <div>
@@ -361,11 +457,20 @@ export function RequestFlow({ onBackToStart }: { onBackToStart: () => void }) {
 
             <div>
               <Label htmlFor="req-notes">Any other notes we should know? (optional)</Label>
-              <Textarea id="req-notes" rows={3} value={data.notes} onChange={(e) => set("notes", e.target.value)} />
+              <Textarea
+                id="req-notes"
+                rows={3}
+                value={data.notes}
+                onChange={(e) => set("notes", e.target.value)}
+              />
             </div>
 
             <div className="flex items-start gap-2 rounded-xl border border-border p-3">
-              <Checkbox id="req-consent" checked={data.consent} onCheckedChange={(v) => set("consent", v === true)} />
+              <Checkbox
+                id="req-consent"
+                checked={data.consent}
+                onCheckedChange={(v) => set("consent", v === true)}
+              />
               <Label htmlFor="req-consent" className="font-normal text-sm">
                 I agree to Milan Students Network storing and using my information to help match me
                 with accommodation, in line with the privacy policy.
