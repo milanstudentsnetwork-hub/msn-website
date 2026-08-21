@@ -112,6 +112,44 @@ export async function postListingToFacebook(caption: string, photoUrls: string[]
   }
 }
 
+// Instagram rejects images outside roughly a 4:5–1.91:1 aspect ratio, unlike
+// Facebook/Telegram which accept anything. Center-crop anything outside that
+// range and re-host the result in R2 so Instagram has a URL it'll accept;
+// images already in range are passed through untouched.
+const IG_MIN_RATIO = 4 / 5;
+const IG_MAX_RATIO = 1.91;
+
+async function resolveInstagramImageUrl(url: string): Promise<string> {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Could not fetch photo for Instagram (${res.status})`);
+  const buffer = Buffer.from(await res.arrayBuffer());
+
+  const sharp = (await import("sharp")).default;
+  const image = sharp(buffer);
+  const { width, height } = await image.metadata();
+  if (!width || !height) throw new Error("Could not read photo dimensions");
+
+  const ratio = width / height;
+  if (ratio >= IG_MIN_RATIO && ratio <= IG_MAX_RATIO) return url;
+
+  const targetWidth = ratio > IG_MAX_RATIO ? Math.round(height * IG_MAX_RATIO) : width;
+  const targetHeight = ratio < IG_MIN_RATIO ? Math.round(width / IG_MIN_RATIO) : height;
+  const cropped = await image
+    .resize(targetWidth, targetHeight, { fit: "cover", position: "center" })
+    .jpeg({ quality: 90 })
+    .toBuffer();
+
+  const { PutObjectCommand } = await import("@aws-sdk/client-s3");
+  const { getR2Client, getR2Config } = await import("./r2-storage.server");
+  const client = getR2Client();
+  const { bucket, publicBaseUrl } = getR2Config();
+  const key = `instagram-crops/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.jpg`;
+  await client.send(
+    new PutObjectCommand({ Bucket: bucket, Key: key, Body: cropped, ContentType: "image/jpeg" }),
+  );
+  return `${publicBaseUrl}/${key}`;
+}
+
 // Instagram fetches and validates the image asynchronously after a media
 // container is created — publishing before that finishes fails with "Media ID
 // is not available", so poll status_code until it reports FINISHED.
@@ -144,47 +182,44 @@ export async function postListingToInstagram(caption: string, photoUrls: string[
   const { accessToken, igUserId } = config;
 
   try {
-    // Instagram rejects images outside roughly a 4:5–1.91:1 aspect ratio
-    // (unlike Facebook/Telegram, which accept anything) — probe each photo
-    // as a carousel-item container and drop the ones it refuses, rather than
-    // letting one bad photo sink the whole post.
     const settled = await Promise.allSettled(
-      photoUrls.slice(0, 10).map(async (url) => {
-        const child = await graphPost(`${igUserId}/media`, {
-          image_url: url,
-          is_carousel_item: "true",
-          access_token: accessToken,
-        });
-        await waitForMediaReady(child.id!, accessToken);
-        return { url, id: child.id! };
-      }),
+      photoUrls.slice(0, 10).map((url) => resolveInstagramImageUrl(url)),
     );
-    const usable = settled.flatMap((r) => (r.status === "fulfilled" ? [r.value] : []));
+    const usableUrls = settled.flatMap((r) => (r.status === "fulfilled" ? [r.value] : []));
     for (const r of settled) {
       if (r.status === "rejected") {
         console.error("[meta] Instagram dropped a photo:", r.reason);
       }
     }
-    if (usable.length === 0) {
-      console.error("[meta] No Instagram-compatible photos for this listing, skipping post");
+    if (usableUrls.length === 0) {
+      console.error("[meta] No usable photos for this listing, skipping Instagram post");
       return;
     }
 
     let creationId: string;
-    if (usable.length === 1) {
-      // A container made with is_carousel_item can't be published standalone —
-      // recreate the one surviving photo as a regular single-image container.
+    if (usableUrls.length === 1) {
       const container = await graphPost(`${igUserId}/media`, {
-        image_url: usable[0]!.url,
+        image_url: usableUrls[0]!,
         caption,
         access_token: accessToken,
       });
       creationId = container.id!;
       await waitForMediaReady(creationId, accessToken);
     } else {
+      const children = await Promise.all(
+        usableUrls.map(async (url) => {
+          const child = await graphPost(`${igUserId}/media`, {
+            image_url: url,
+            is_carousel_item: "true",
+            access_token: accessToken,
+          });
+          await waitForMediaReady(child.id!, accessToken);
+          return child;
+        }),
+      );
       const container = await graphPost(`${igUserId}/media`, {
         media_type: "CAROUSEL",
-        children: usable.map((c) => c.id).join(","),
+        children: children.map((c) => c.id).join(","),
         caption,
         access_token: accessToken,
       });
