@@ -88,6 +88,7 @@ const accommodationListingSchema = z
     available_now: z.boolean(),
     available_from: z.string().trim().max(30),
     long_term: z.boolean(),
+    available_until: z.string().trim().max(30).nullable().default(null),
     contract_status: z.enum(["yes", "no", "explain"]),
     contract_notes: z.string().trim().max(1000).nullable().default(null),
     room_type: z.enum(ROOM_TYPES),
@@ -119,6 +120,13 @@ const accommodationListingSchema = z
         code: "custom",
         path: ["contract_notes"],
         message: "Please explain the contract situation.",
+      });
+    }
+    if (!val.long_term && !val.available_until) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["available_until"],
+        message: "Please choose an end date.",
       });
     }
     if (val.images.length > 0 && !val.photo_consent) {
@@ -159,6 +167,7 @@ export const submitAccommodationListing = createServerFn({ method: "POST" })
         available_now: data.available_now,
         available_from: data.available_from,
         long_term: data.long_term,
+        available_until: data.available_until,
         contract_status: data.contract_status,
         contract_notes: data.contract_notes,
         room_type: data.room_type,

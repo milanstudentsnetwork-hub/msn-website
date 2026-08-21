@@ -225,7 +225,11 @@ function ListingDetailPage() {
                     : "Contact for date"}
               </DetailRow>
               <DetailRow label="Stay length">
-                {listing.long_term ? "Long-term" : "Short-term"}
+                {listing.long_term
+                  ? "Long-term"
+                  : listing.available_until
+                    ? `Short-term, until ${listing.available_until}`
+                    : "Short-term"}
               </DetailRow>
               {genderLabel && <DetailRow label="Gender preference">{genderLabel}</DetailRow>}
               {contractLabel && <DetailRow label="Registered contract">{contractLabel}</DetailRow>}

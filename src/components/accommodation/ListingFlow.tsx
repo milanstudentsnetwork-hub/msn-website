@@ -40,6 +40,7 @@ type FormState = {
   available_now: string;
   available_from: string;
   long_term: string;
+  available_until: string;
   contract_status: string;
   contract_notes: string;
   room_type: string;
@@ -67,6 +68,7 @@ const emptyForm: FormState = {
   available_now: "",
   available_from: "",
   long_term: "",
+  available_until: "",
   contract_status: "",
   contract_notes: "",
   room_type: "",
@@ -100,6 +102,9 @@ function validateStep(step: number, data: FormState): FormErrors {
     if (!data.available_now) errors.available_now = "Please select an option.";
     if (!data.available_from) errors.available_from = "Please choose a date.";
     if (!data.long_term) errors.long_term = "Please select an option.";
+    if (data.long_term === "no" && !data.available_until) {
+      errors.available_until = "Please choose an end date.";
+    }
     if (!data.contract_status) errors.contract_status = "Please select an option.";
   }
   if (step === 3) {
@@ -171,6 +176,7 @@ export function ListingFlow({ onBackToStart }: { onBackToStart: () => void }) {
           available_now: data.available_now === "yes",
           available_from: data.available_from,
           long_term: data.long_term === "yes",
+          available_until: data.long_term === "no" ? data.available_until || null : null,
           contract_status: data.contract_status as "yes" | "no" | "explain",
           contract_notes: data.contract_notes.trim() || null,
           room_type: data.room_type as "studio" | "single_shared_flat" | "shared_bed",
@@ -323,7 +329,10 @@ export function ListingFlow({ onBackToStart }: { onBackToStart: () => void }) {
               <Label>Is the room available for long-term stay?</Label>
               <RadioGroup
                 value={data.long_term}
-                onValueChange={(v) => set("long_term", v)}
+                onValueChange={(v) => {
+                  set("long_term", v);
+                  if (v === "yes") set("available_until", "");
+                }}
                 className="mt-2"
               >
                 <div className="flex items-center gap-2">
@@ -341,6 +350,19 @@ export function ListingFlow({ onBackToStart }: { onBackToStart: () => void }) {
               </RadioGroup>
               <FieldError message={errors.long_term} />
             </div>
+
+            {data.long_term === "no" && (
+              <div>
+                <Label htmlFor="l-avail-until">Until what date is it available?</Label>
+                <Input
+                  id="l-avail-until"
+                  type="date"
+                  value={data.available_until}
+                  onChange={(e) => set("available_until", e.target.value)}
+                />
+                <FieldError message={errors.available_until} />
+              </div>
+            )}
 
             <div>
               <Label>Is a registered contract available during the stay?</Label>
