@@ -112,6 +112,24 @@ export async function postListingToFacebook(caption: string, photoUrls: string[]
   }
 }
 
+// Instagram fetches and validates the image asynchronously after a media
+// container is created — publishing before that finishes fails with "Media ID
+// is not available", so poll status_code until it reports FINISHED.
+async function waitForMediaReady(containerId: string, accessToken: string) {
+  for (let attempt = 0; attempt < 15; attempt++) {
+    const res = await fetch(
+      `${GRAPH_API}/${containerId}?fields=status_code&access_token=${accessToken}`,
+    );
+    const data = (await res.json()) as { status_code?: string; error?: { message: string } };
+    if (data.status_code === "FINISHED") return;
+    if (data.status_code === "ERROR") {
+      throw new Error(data.error?.message || `Media container ${containerId} failed processing.`);
+    }
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+  }
+  throw new Error(`Media container ${containerId} never finished processing.`);
+}
+
 // Instagram's Content Publishing API can't post text-only — a listing with no
 // photos is simply skipped there (it still goes out on Facebook/Telegram).
 export async function postListingToInstagram(caption: string, photoUrls: string[] = []) {
@@ -134,15 +152,18 @@ export async function postListingToInstagram(caption: string, photoUrls: string[
         access_token: accessToken,
       });
       creationId = container.id!;
+      await waitForMediaReady(creationId, accessToken);
     } else {
       const children = await Promise.all(
-        photoUrls.slice(0, 10).map((url) =>
-          graphPost(`${igUserId}/media`, {
+        photoUrls.slice(0, 10).map(async (url) => {
+          const child = await graphPost(`${igUserId}/media`, {
             image_url: url,
             is_carousel_item: "true",
             access_token: accessToken,
-          }),
-        ),
+          });
+          await waitForMediaReady(child.id!, accessToken);
+          return child;
+        }),
       );
       const container = await graphPost(`${igUserId}/media`, {
         media_type: "CAROUSEL",
@@ -151,6 +172,7 @@ export async function postListingToInstagram(caption: string, photoUrls: string[
         access_token: accessToken,
       });
       creationId = container.id!;
+      await waitForMediaReady(creationId, accessToken);
     }
     await graphPost(`${igUserId}/media_publish`, {
       creation_id: creationId,
