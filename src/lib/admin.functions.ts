@@ -202,9 +202,7 @@ const listingUpdateSchema = z.object({
   neighborhood: z.string().trim().max(120).optional(),
   room_type: z.string().trim().max(60).optional(),
   is_featured: z.boolean().optional(),
-  status: z
-    .enum(["pending", "approved", "rejected", "published", "matched", "closed"])
-    .optional(),
+  status: z.enum(["pending", "approved", "rejected", "published", "matched", "closed"]).optional(),
   admin_notes: z.string().trim().max(2000).nullable().optional(),
 });
 
@@ -253,12 +251,10 @@ export const adminUpdateListing = createServerFn({ method: "POST" })
         .maybeSingle();
       const channelUrl = setting?.value;
       if (channelUrl) {
-        const { notifyTelegramChannel, formatListingAnnouncement } = await import(
-          "./telegram.server"
-        );
+        const { notifyTelegramChannel, formatListingAnnouncement } =
+          await import("./telegram.server");
         const listing = updated as ListingRow;
-        const photo = listing.images.length > 0 ? listing.images[0] : undefined;
-        await notifyTelegramChannel(channelUrl, formatListingAnnouncement(listing), photo);
+        await notifyTelegramChannel(channelUrl, formatListingAnnouncement(listing), listing.images);
       }
     }
 
@@ -269,7 +265,10 @@ export const adminDeleteListing = createServerFn({ method: "POST" })
   .middleware([requireAdmin])
   .inputValidator((data: unknown) => z.object({ id: z.string().uuid() }).parse(data))
   .handler(async ({ context, data }) => {
-    const { error } = await context.supabase.from("accommodation_listings").delete().eq("id", data.id);
+    const { error } = await context.supabase
+      .from("accommodation_listings")
+      .delete()
+      .eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true as const };
   });

@@ -39,7 +39,15 @@ function extractChannelChatId(channelUrl: string): string | null {
   return match ? `@${match[1]}` : null;
 }
 
-export async function notifyTelegramChannel(channelUrl: string, text: string, photoUrl?: string) {
+// Telegram's sendMediaGroup only accepts 2-10 items; a single photo has to go
+// through sendPhoto instead, and zero photos falls back to a plain text post.
+const MAX_MEDIA_GROUP_PHOTOS = 10;
+
+export async function notifyTelegramChannel(
+  channelUrl: string,
+  text: string,
+  photoUrls: string[] = [],
+) {
   const token = process.env["TELEGRAM_BOT_TOKEN"];
   if (!token) {
     console.error("[telegram] Missing TELEGRAM_BOT_TOKEN, skipping channel post");
@@ -51,11 +59,28 @@ export async function notifyTelegramChannel(channelUrl: string, text: string, ph
     return;
   }
 
-  const useSendPhoto = Boolean(photoUrl);
-  const endpoint = useSendPhoto ? "sendPhoto" : "sendMessage";
-  const body = useSendPhoto
-    ? { chat_id: chatId, photo: photoUrl, caption: text, parse_mode: "HTML" }
-    : { chat_id: chatId, text, parse_mode: "HTML", disable_web_page_preview: true };
+  const photos = photoUrls.slice(0, MAX_MEDIA_GROUP_PHOTOS);
+  let endpoint: string;
+  let body: Record<string, unknown>;
+
+  if (photos.length >= 2) {
+    endpoint = "sendMediaGroup";
+    body = {
+      chat_id: chatId,
+      // Only the first item's caption is shown by Telegram for the whole album.
+      media: photos.map((photo, i) => ({
+        type: "photo",
+        media: photo,
+        ...(i === 0 ? { caption: text, parse_mode: "HTML" } : {}),
+      })),
+    };
+  } else if (photos.length === 1) {
+    endpoint = "sendPhoto";
+    body = { chat_id: chatId, photo: photos[0], caption: text, parse_mode: "HTML" };
+  } else {
+    endpoint = "sendMessage";
+    body = { chat_id: chatId, text, parse_mode: "HTML", disable_web_page_preview: true };
+  }
 
   const res = await fetch(`https://api.telegram.org/bot${token}/${endpoint}`, {
     method: "POST",
@@ -83,7 +108,9 @@ export function formatListingAnnouncement(listing: ListingRow): string {
   const price = listing.rent_range || `€${listing.price}/${listing.price_period}`;
   const roomType = ROOM_TYPE_LABEL[listing.room_type] ?? listing.room_type;
   const description =
-    listing.description.length > 300 ? `${listing.description.slice(0, 300)}…` : listing.description;
+    listing.description.length > 300
+      ? `${listing.description.slice(0, 300)}…`
+      : listing.description;
 
   const details = [
     `💶 ${price}`,
@@ -101,7 +128,7 @@ export function formatListingAnnouncement(listing: ListingRow): string {
     `📍 ${escapeHtml(listing.neighborhood)}\n` +
     `${details}\n\n` +
     `${escapeHtml(description)}\n\n` +
-    `Full details: ${SITE_URL}/accommodation`
+    `Full details: ${SITE_URL}/accommodation/${listing.id}`
   );
 }
 
@@ -136,7 +163,8 @@ export async function formatEventsReply(): Promise<string> {
   }
 
   const lines = (data as EventRow[]).map((event) => {
-    const when = formatEventDate(event.event_date) + (event.start_time ? `, ${event.start_time}` : "");
+    const when =
+      formatEventDate(event.event_date) + (event.start_time ? `, ${event.start_time}` : "");
     return `• <b>${escapeHtml(event.title)}</b>\n  ${when} — ${escapeHtml(event.location || "TBA")}`;
   });
 

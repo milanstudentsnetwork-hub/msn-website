@@ -1,6 +1,16 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Bot, Facebook, Instagram, Linkedin, Lock, Mail, MessageCircle, Send, Youtube } from "lucide-react";
+import {
+  Bot,
+  Facebook,
+  Instagram,
+  Linkedin,
+  Lock,
+  Mail,
+  MessageCircle,
+  Send,
+  Youtube,
+} from "lucide-react";
 import { siteSettingsQuery } from "@/lib/queries";
 import logo from "@/assets/logo-header.png";
 
@@ -8,10 +18,14 @@ export function SiteFooter() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { data: settings } = useQuery(siteSettingsQuery);
   const email = settings?.["contact_email"] || "hello@milanstudents.network";
-  const instagramUrl = settings?.["instagram_url"] || "https://www.instagram.com/milan_students_network/";
-  const facebookUrl = settings?.["facebook_url"] || "https://www.facebook.com/profile.php?id=61591704673293";
-  const linkedinUrl = settings?.["linkedin_url"] || "https://www.linkedin.com/company/milan-students-network";
-  const youtubeUrl = settings?.["youtube_url"] || "https://www.youtube.com/channel/UCazDSeg5TvKbSTgF2i7eNug";
+  const instagramUrl =
+    settings?.["instagram_url"] || "https://www.instagram.com/milan_students_network/";
+  const facebookUrl =
+    settings?.["facebook_url"] || "https://www.facebook.com/profile.php?id=61591704673293";
+  const linkedinUrl =
+    settings?.["linkedin_url"] || "https://www.linkedin.com/company/milan-students-network";
+  const youtubeUrl =
+    settings?.["youtube_url"] || "https://www.youtube.com/channel/UCazDSeg5TvKbSTgF2i7eNug";
   const whatsappUrl = settings?.["whatsapp_url"] || "https://t.me";
   const telegramGroupUrl = settings?.["telegram_group_url"];
   const telegramBotUrl = settings?.["telegram_bot_url"];
@@ -44,7 +58,7 @@ export function SiteFooter() {
             A student-run community helping internationals land softly in Milan — rooms, friends,
             paperwork and everything in between.
           </p>
-          <div className="mt-6 flex gap-3">
+          <div className="mt-6 flex flex-wrap gap-3">
             <a
               href={`mailto:${email}`}
               aria-label="Email us"

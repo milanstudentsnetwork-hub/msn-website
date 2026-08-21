@@ -21,6 +21,8 @@ import { GENDER_PREFERENCES, CONTRACT_STATUSES } from "@/lib/accommodation-optio
 import { cn } from "@/lib/utils";
 import roomPlaceholder from "@/assets/room-placeholder.jpg";
 
+const SITE_URL = "https://milan-sn.it";
+
 /** Convert a snake_case DB value like "private_room" to "Private Room" */
 function formatLabel(value: string) {
   return value
@@ -52,14 +54,29 @@ export const Route = createFileRoute("/accommodation/$id")({
     if (!listing) throw notFound();
     return listing;
   },
-  head: ({ loaderData }) => ({
-    meta: loaderData
-      ? [
-          { title: `${loaderData.title} | Milan Students Network` },
-          { name: "description", content: loaderData.description.slice(0, 160) },
-        ]
-      : [],
-  }),
+  head: ({ loaderData }) => {
+    if (!loaderData) return { meta: [] };
+    const title = `${loaderData.title} | Milan Students Network`;
+    const description = loaderData.description.slice(0, 160);
+    const url = `${SITE_URL}/accommodation/${loaderData.id}`;
+    const image = loaderData.images?.[0];
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        { property: "og:url", content: url },
+        { property: "og:type", content: "website" },
+        ...(image
+          ? [
+              { property: "og:image", content: image },
+              { name: "twitter:image", content: image },
+            ]
+          : []),
+      ],
+    };
+  },
   component: ListingDetailPage,
 });
 
