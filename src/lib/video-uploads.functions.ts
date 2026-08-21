@@ -19,10 +19,11 @@ const requestSchema = z.object({
     .max(MAX_VIDEO_BYTES, "Video is too large (max 500MB)."),
 });
 
-/** Initiates a resumable upload session directly with YouTube and hands the
- * browser a short-lived access token + session URL so it can PUT the video
- * bytes straight to Google — our own server never sees the video data
- * (Vercel functions can't handle multi-hundred-MB request bodies anyway). */
+/** Initiates a resumable upload session with YouTube and hands back just the
+ * session URL — the video bytes are relayed chunk-by-chunk through
+ * /api/video-upload-chunk (see that route for why: YouTube's upload API has
+ * no CORS support, so the browser can't talk to Google directly). The OAuth
+ * access token never leaves the server. */
 export const getVideoUploadSession = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => requestSchema.parse(data))
   .handler(async ({ data }) => {
@@ -62,7 +63,7 @@ export const getVideoUploadSession = createServerFn({ method: "POST" })
       const uploadUrl = res.headers.get("Location");
       if (!uploadUrl) throw new Error("YouTube did not return an upload session URL.");
 
-      return { uploadUrl, accessToken };
+      return { uploadUrl };
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       throw new Error(`Video upload setup failed: ${message}`);

@@ -12,34 +12,47 @@ const MAX_TITLE_LENGTH = 100;
 
 type YoutubeVideoResource = { id: string };
 
-function uploadWithProgress(
-  url: string,
+// Multiple of 256KiB (Google's requirement) and safely under Vercel's request
+// body limit — YouTube's upload API has no CORS support, so bytes go through
+// our own /api/video-upload-chunk relay instead of straight to Google.
+const CHUNK_SIZE = 4 * 1024 * 1024;
+
+async function uploadInChunks(
+  uploadUrl: string,
   file: File,
-  accessToken: string,
   onProgress: (fraction: number) => void,
 ): Promise<YoutubeVideoResource> {
-  return new Promise((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-    xhr.open("PUT", url);
-    xhr.setRequestHeader("Content-Type", file.type);
-    xhr.setRequestHeader("Authorization", `Bearer ${accessToken}`);
-    xhr.upload.onprogress = (e) => {
-      if (e.lengthComputable) onProgress(e.loaded / e.total);
-    };
-    xhr.onload = () => {
-      if (xhr.status >= 200 && xhr.status < 300) {
-        try {
-          resolve(JSON.parse(xhr.responseText) as YoutubeVideoResource);
-        } catch {
-          reject(new Error("Couldn't read the response from YouTube."));
-        }
-      } else {
-        reject(new Error(`Upload failed (${xhr.status}): ${xhr.responseText.slice(0, 200)}`));
-      }
-    };
-    xhr.onerror = () => reject(new Error("Network error during upload."));
-    xhr.send(file);
-  });
+  const total = file.size;
+  let start = 0;
+
+  while (start < total) {
+    const end = Math.min(start + CHUNK_SIZE, total);
+    const chunk = file.slice(start, end);
+
+    const res = await fetch("/api/video-upload-chunk", {
+      method: "POST",
+      headers: {
+        "x-upload-url": uploadUrl,
+        "x-content-range": `bytes ${start}-${end - 1}/${total}`,
+        "x-content-type": file.type,
+      },
+      body: chunk,
+    });
+
+    if (res.status === 308) {
+      start = end;
+      onProgress(start / total);
+      continue;
+    }
+    if (res.status === 200 || res.status === 201) {
+      onProgress(1);
+      return (await res.json()) as YoutubeVideoResource;
+    }
+    const body = await res.text().catch(() => "");
+    throw new Error(`Upload failed (${res.status}): ${body.slice(0, 200)}`);
+  }
+
+  throw new Error("Upload ended unexpectedly without a response from YouTube.");
 }
 
 export function VideoUploader({
@@ -75,7 +88,7 @@ export function VideoUploader({
     setProgress(0);
     try {
       const rawTitle = title || file.name;
-      const { uploadUrl, accessToken } = await getSession({
+      const { uploadUrl } = await getSession({
         data: {
           title:
             rawTitle.length > MAX_TITLE_LENGTH
@@ -85,7 +98,7 @@ export function VideoUploader({
           fileSizeBytes: file.size,
         },
       });
-      const video = await uploadWithProgress(uploadUrl, file, accessToken, setProgress);
+      const video = await uploadInChunks(uploadUrl, file, setProgress);
       onChange(`https://youtu.be/${video.id}`);
     } catch (err) {
       console.error("Video upload failed", err);

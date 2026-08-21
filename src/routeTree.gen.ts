@@ -29,6 +29,7 @@ import { Route as AdminPortalRequestsRouteImport } from './routes/admin-portal/r
 import { Route as AdminPortalServicesRouteImport } from './routes/admin-portal/services'
 import { Route as AdminPortalSettingsRouteImport } from './routes/admin-portal/settings'
 import { Route as ApiTelegramWebhookRouteImport } from './routes/api/telegram-webhook'
+import { Route as ApiVideoUploadChunkRouteImport } from './routes/api/video-upload-chunk'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -132,6 +133,11 @@ const ApiTelegramWebhookRoute = ApiTelegramWebhookRouteImport.update({
   path: '/api/telegram-webhook',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiVideoUploadChunkRoute = ApiVideoUploadChunkRouteImport.update({
+  id: '/api/video-upload-chunk',
+  path: '/api/video-upload-chunk',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -152,6 +158,7 @@ export interface FileRoutesByFullPath {
   '/admin-portal/services': typeof AdminPortalServicesRoute
   '/admin-portal/settings': typeof AdminPortalSettingsRoute
   '/api/telegram-webhook': typeof ApiTelegramWebhookRoute
+  '/api/video-upload-chunk': typeof ApiVideoUploadChunkRoute
   '/accommodation/': typeof AccommodationIndexRoute
   '/admin-portal/': typeof AdminPortalIndexRoute
 }
@@ -173,6 +180,7 @@ export interface FileRoutesByTo {
   '/admin-portal/services': typeof AdminPortalServicesRoute
   '/admin-portal/settings': typeof AdminPortalSettingsRoute
   '/api/telegram-webhook': typeof ApiTelegramWebhookRoute
+  '/api/video-upload-chunk': typeof ApiVideoUploadChunkRoute
   '/accommodation': typeof AccommodationIndexRoute
   '/admin-portal': typeof AdminPortalIndexRoute
 }
@@ -196,6 +204,7 @@ export interface FileRoutesById {
   '/admin-portal/services': typeof AdminPortalServicesRoute
   '/admin-portal/settings': typeof AdminPortalSettingsRoute
   '/api/telegram-webhook': typeof ApiTelegramWebhookRoute
+  '/api/video-upload-chunk': typeof ApiVideoUploadChunkRoute
   '/accommodation/': typeof AccommodationIndexRoute
   '/admin-portal/': typeof AdminPortalIndexRoute
 }
@@ -220,6 +229,7 @@ export interface FileRouteTypes {
     | '/admin-portal/services'
     | '/admin-portal/settings'
     | '/api/telegram-webhook'
+    | '/api/video-upload-chunk'
     | '/accommodation/'
     | '/admin-portal/'
   fileRoutesByTo: FileRoutesByTo
@@ -241,6 +251,7 @@ export interface FileRouteTypes {
     | '/admin-portal/services'
     | '/admin-portal/settings'
     | '/api/telegram-webhook'
+    | '/api/video-upload-chunk'
     | '/accommodation'
     | '/admin-portal'
   id:
@@ -263,6 +274,7 @@ export interface FileRouteTypes {
     | '/admin-portal/services'
     | '/admin-portal/settings'
     | '/api/telegram-webhook'
+    | '/api/video-upload-chunk'
     | '/accommodation/'
     | '/admin-portal/'
   fileRoutesById: FileRoutesById
@@ -285,6 +297,7 @@ export interface RootRouteChildren {
   AdminPortalServicesRoute: typeof AdminPortalServicesRoute
   AdminPortalSettingsRoute: typeof AdminPortalSettingsRoute
   ApiTelegramWebhookRoute: typeof ApiTelegramWebhookRoute
+  ApiVideoUploadChunkRoute: typeof ApiVideoUploadChunkRoute
   AdminPortalIndexRoute: typeof AdminPortalIndexRoute
 }
 
@@ -430,6 +443,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiTelegramWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/video-upload-chunk': {
+      id: '/api/video-upload-chunk'
+      path: '/api/video-upload-chunk'
+      fullPath: '/api/video-upload-chunk'
+      preLoaderRoute: typeof ApiVideoUploadChunkRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -465,6 +485,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminPortalServicesRoute: AdminPortalServicesRoute,
   AdminPortalSettingsRoute: AdminPortalSettingsRoute,
   ApiTelegramWebhookRoute: ApiTelegramWebhookRoute,
+  ApiVideoUploadChunkRoute: ApiVideoUploadChunkRoute,
   AdminPortalIndexRoute: AdminPortalIndexRoute,
 }
 export const routeTree = rootRouteImport
