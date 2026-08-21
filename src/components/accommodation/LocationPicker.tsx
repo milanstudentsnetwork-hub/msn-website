@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import "leaflet/dist/leaflet.css";
 import type { Map as LeafletMap, Marker as LeafletMarker } from "leaflet";
-import { Search } from "lucide-react";
+import { Map as MapIcon, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -24,6 +24,7 @@ export function LocationPicker({
   const mapRef = useRef<LeafletMap | null>(null);
   const markerRef = useRef<LeafletMarker | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [showMap, setShowMap] = useState(false);
   const [searchInput, setSearchInput] = useState(query);
   const [results, setResults] = useState<GeocodeResult[]>([]);
   const [searching, setSearching] = useState(false);
@@ -31,9 +32,9 @@ export function LocationPicker({
 
   useEffect(() => setMounted(true), []);
 
-  // Initialize the map once, client-side only.
+  // Initialize the map only once it's actually shown, client-side only.
   useEffect(() => {
-    if (!mounted || !containerRef.current || mapRef.current) return;
+    if (!mounted || !showMap || !containerRef.current || mapRef.current) return;
 
     let cancelled = false;
     (async () => {
@@ -82,9 +83,10 @@ export function LocationPicker({
       cancelled = true;
       mapRef.current?.remove();
       mapRef.current = null;
+      markerRef.current = null;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mounted]);
+  }, [mounted, showMap]);
 
   // Keep latest onChange/searchInput available inside Leaflet's event handlers
   // without re-binding them on every render.
@@ -158,8 +160,8 @@ export function LocationPicker({
 
       {noResultsFound && (
         <p className="mt-1 text-xs text-muted-foreground">
-          No matches found — no problem, we'll save the address exactly as you typed it. You can
-          still drag the pin or click the map to set the exact spot if you know it.
+          No matches found — no problem, we'll save the address exactly as you typed it. Click "Show
+          map" below and drag the pin to the exact spot if you know it.
         </p>
       )}
 
@@ -179,13 +181,26 @@ export function LocationPicker({
         </ul>
       )}
 
-      <p className="mt-2 text-xs text-muted-foreground">
-        Search an address, or drag the pin / click the map to set the exact spot.
-      </p>
-      <div
-        ref={containerRef}
-        className="relative z-0 mt-2 h-64 w-full overflow-hidden rounded-xl border border-border"
-      />
+      <button
+        type="button"
+        onClick={() => setShowMap((v) => !v)}
+        className="press mt-2 inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-semibold text-muted-foreground hover:text-foreground"
+      >
+        <MapIcon className="size-4" /> {showMap ? "Hide map" : "Show map"}
+      </button>
+
+      {showMap && (
+        <>
+          <p className="mt-2 text-xs text-muted-foreground">
+            If the pin doesn't land on the right spot, drag it — or click anywhere on the map — to
+            set the exact location.
+          </p>
+          <div
+            ref={containerRef}
+            className="relative z-0 mt-2 h-64 w-full overflow-hidden rounded-xl border border-border"
+          />
+        </>
+      )}
     </div>
   );
 }
