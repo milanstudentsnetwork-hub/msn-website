@@ -335,7 +335,7 @@ function AccommodationPage() {
             />
           </div>
         )}
-        <div className="mt-4">
+        <div className="relative z-0 mt-4">
           <ListingsMap
             listings={listings}
             center={mapCenter}

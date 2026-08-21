@@ -184,7 +184,7 @@ export function LocationPicker({
       </p>
       <div
         ref={containerRef}
-        className="mt-2 h-64 w-full overflow-hidden rounded-xl border border-border"
+        className="relative z-0 mt-2 h-64 w-full overflow-hidden rounded-xl border border-border"
       />
     </div>
   );
