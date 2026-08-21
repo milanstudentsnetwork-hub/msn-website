@@ -250,12 +250,19 @@ export const adminUpdateListing = createServerFn({ method: "POST" })
         .eq("key", "telegram_accommodation_url")
         .maybeSingle();
       const channelUrl = setting?.value;
+      const listing = updated as ListingRow;
       if (channelUrl) {
         const { notifyTelegramChannel, formatListingAnnouncement } =
           await import("./telegram.server");
-        const listing = updated as ListingRow;
         await notifyTelegramChannel(channelUrl, formatListingAnnouncement(listing), listing.images);
       }
+      const { postListingToFacebook, postListingToInstagram, formatListingCaption } =
+        await import("./meta.server");
+      const caption = formatListingCaption(listing);
+      await Promise.all([
+        postListingToFacebook(caption, listing.images),
+        postListingToInstagram(caption, listing.images),
+      ]);
     }
 
     return { ok: true as const };

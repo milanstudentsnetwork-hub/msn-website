@@ -21,7 +21,7 @@ export function SiteFooter() {
   const instagramUrl =
     settings?.["instagram_url"] || "https://www.instagram.com/milan_students_network/";
   const facebookUrl =
-    settings?.["facebook_url"] || "https://www.facebook.com/profile.php?id=61591704673293";
+    settings?.["facebook_url"] || "https://www.facebook.com/profile.php?id=61593263025951";
   const linkedinUrl =
     settings?.["linkedin_url"] || "https://www.linkedin.com/company/milan-students-network";
   const youtubeUrl =
