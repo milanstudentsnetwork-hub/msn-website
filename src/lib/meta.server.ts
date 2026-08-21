@@ -144,30 +144,47 @@ export async function postListingToInstagram(caption: string, photoUrls: string[
   const { accessToken, igUserId } = config;
 
   try {
+    // Instagram rejects images outside roughly a 4:5–1.91:1 aspect ratio
+    // (unlike Facebook/Telegram, which accept anything) — probe each photo
+    // as a carousel-item container and drop the ones it refuses, rather than
+    // letting one bad photo sink the whole post.
+    const settled = await Promise.allSettled(
+      photoUrls.slice(0, 10).map(async (url) => {
+        const child = await graphPost(`${igUserId}/media`, {
+          image_url: url,
+          is_carousel_item: "true",
+          access_token: accessToken,
+        });
+        await waitForMediaReady(child.id!, accessToken);
+        return { url, id: child.id! };
+      }),
+    );
+    const usable = settled.flatMap((r) => (r.status === "fulfilled" ? [r.value] : []));
+    for (const r of settled) {
+      if (r.status === "rejected") {
+        console.error("[meta] Instagram dropped a photo:", r.reason);
+      }
+    }
+    if (usable.length === 0) {
+      console.error("[meta] No Instagram-compatible photos for this listing, skipping post");
+      return;
+    }
+
     let creationId: string;
-    if (photoUrls.length === 1) {
+    if (usable.length === 1) {
+      // A container made with is_carousel_item can't be published standalone —
+      // recreate the one surviving photo as a regular single-image container.
       const container = await graphPost(`${igUserId}/media`, {
-        image_url: photoUrls[0]!,
+        image_url: usable[0]!.url,
         caption,
         access_token: accessToken,
       });
       creationId = container.id!;
       await waitForMediaReady(creationId, accessToken);
     } else {
-      const children = await Promise.all(
-        photoUrls.slice(0, 10).map(async (url) => {
-          const child = await graphPost(`${igUserId}/media`, {
-            image_url: url,
-            is_carousel_item: "true",
-            access_token: accessToken,
-          });
-          await waitForMediaReady(child.id!, accessToken);
-          return child;
-        }),
-      );
       const container = await graphPost(`${igUserId}/media`, {
         media_type: "CAROUSEL",
-        children: children.map((c) => c.id).join(","),
+        children: usable.map((c) => c.id).join(","),
         caption,
         access_token: accessToken,
       });
