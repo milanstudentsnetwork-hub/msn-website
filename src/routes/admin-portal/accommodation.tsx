@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
+import { Film } from "lucide-react";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -197,22 +198,35 @@ function AccommodationAdminPage() {
                 <TableRow key={listing.id}>
                   <TableCell className="max-w-xs truncate font-medium">{listing.title}</TableCell>
                   <TableCell>
-                    {listing.images && listing.images.length > 0 ? (
-                      <button
-                        type="button"
-                        onClick={() => setViewingPhotos(listing)}
-                        className="group relative block size-12 overflow-hidden rounded-lg border border-border"
-                      >
-                        <img src={listing.images[0]} alt="" className="size-full object-cover" />
-                        {listing.images.length > 1 && (
-                          <span className="absolute bottom-0 right-0 rounded-tl bg-black/70 px-1 text-[10px] font-bold text-white">
-                            {listing.images.length}
-                          </span>
-                        )}
-                      </button>
-                    ) : (
-                      <span className="text-xs text-muted-foreground">None</span>
-                    )}
+                    <div className="flex items-center gap-1.5">
+                      {listing.images && listing.images.length > 0 ? (
+                        <button
+                          type="button"
+                          onClick={() => setViewingPhotos(listing)}
+                          className="group relative block size-12 overflow-hidden rounded-lg border border-border"
+                        >
+                          <img src={listing.images[0]} alt="" className="size-full object-cover" />
+                          {listing.images.length > 1 && (
+                            <span className="absolute bottom-0 right-0 rounded-tl bg-black/70 px-1 text-[10px] font-bold text-white">
+                              {listing.images.length}
+                            </span>
+                          )}
+                        </button>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">None</span>
+                      )}
+                      {listing.video_url && (
+                        <a
+                          href={listing.video_url}
+                          target="_blank"
+                          rel="noreferrer"
+                          aria-label="Watch video walkthrough"
+                          className="grid size-7 shrink-0 place-items-center rounded-full bg-muted hover:bg-accent/10 hover:text-accent"
+                        >
+                          <Film className="size-3.5" />
+                        </a>
+                      )}
+                    </div>
                   </TableCell>
                   <TableCell>
                     <Badge
@@ -432,6 +446,17 @@ function AccommodationAdminPage() {
           <DialogHeader>
             <DialogTitle>{viewingPhotos?.title}</DialogTitle>
           </DialogHeader>
+          {viewingPhotos?.video_url && (
+            <a
+              href={viewingPhotos.video_url}
+              target="_blank"
+              rel="noreferrer"
+              className="mb-3 flex items-center gap-2 rounded-lg border border-border p-2.5 text-sm font-semibold text-accent underline-offset-4 hover:underline"
+            >
+              <Film className="size-4 shrink-0" />
+              <span className="truncate">{viewingPhotos.video_url}</span>
+            </a>
+          )}
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             {viewingPhotos?.images?.map((url) => (
               <a key={url} href={url} target="_blank" rel="noreferrer" className="block">
