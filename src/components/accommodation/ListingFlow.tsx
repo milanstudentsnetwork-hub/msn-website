@@ -31,6 +31,7 @@ import {
 } from "@/lib/accommodation-options";
 
 const TOTAL_STEPS = 4;
+const MIN_LOCATION_DESCRIPTION_LENGTH = 3;
 
 type FormState = {
   first_name: string;
@@ -113,8 +114,11 @@ function validateStep(step: number, data: FormState): FormErrors {
     if (!data.gender_preference) errors.gender_preference = "Please select an option.";
     if (!data.max_roommates) errors.max_roommates = "Please select an option.";
     if (!data.location_query.trim()) errors.location_query = "Please search or set a location.";
-    if (!data.location_description.trim())
-      errors.location_description = "Please describe the location.";
+    if (data.location_description.trim().length < MIN_LOCATION_DESCRIPTION_LENGTH) {
+      errors.location_description = data.location_description.trim()
+        ? `A bit more detail please — at least ${MIN_LOCATION_DESCRIPTION_LENGTH} characters.`
+        : "Please describe the location.";
+    }
     if (!data.is_modern) errors.is_modern = "Please select an option.";
   }
   if (step === 4) {
@@ -505,6 +509,13 @@ export function ListingFlow({ onBackToStart }: { onBackToStart: () => void }) {
                 onChange={(e) => set("location_description", e.target.value)}
                 placeholder="Tell us how far the accommodation is from the nearest metro station, bus station, university, or landmark."
               />
+              {data.location_description.trim().length > 0 &&
+                data.location_description.trim().length < MIN_LOCATION_DESCRIPTION_LENGTH && (
+                  <p className="mt-1 text-xs text-destructive">
+                    A bit more detail please — at least {MIN_LOCATION_DESCRIPTION_LENGTH} characters
+                    ({data.location_description.trim().length} so far).
+                  </p>
+                )}
               <FieldError message={errors.location_description} />
             </div>
 

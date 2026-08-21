@@ -7,6 +7,8 @@ import { Label } from "@/components/ui/label";
 
 const MAX_FILE_BYTES = 500 * 1024 * 1024; // 500MB
 const ACCEPTED_TYPES = ["video/mp4", "video/quicktime", "video/webm", "video/x-msvideo"];
+// Matches the server's title max(100) — room-type + full geocoded address can easily run over.
+const MAX_TITLE_LENGTH = 100;
 
 type YoutubeVideoResource = { id: string };
 
@@ -72,9 +74,13 @@ export function VideoUploader({
     setUploading(true);
     setProgress(0);
     try {
+      const rawTitle = title || file.name;
       const { uploadUrl, accessToken } = await getSession({
         data: {
-          title: title || file.name,
+          title:
+            rawTitle.length > MAX_TITLE_LENGTH
+              ? `${rawTitle.slice(0, MAX_TITLE_LENGTH - 1)}…`
+              : rawTitle,
           contentType: file.type as (typeof ACCEPTED_TYPES)[number],
           fileSizeBytes: file.size,
         },
