@@ -128,6 +128,7 @@ export function formatListingAnnouncement(listing: ListingRow): string {
     `📍 ${escapeHtml(listing.neighborhood)}\n` +
     `${details}\n\n` +
     `${escapeHtml(description)}\n\n` +
+    (listing.video_url ? `🎥 Video walkthrough: ${escapeHtml(listing.video_url)}\n` : "") +
     `Full details: ${SITE_URL}/accommodation/${listing.id}`
   );
 }

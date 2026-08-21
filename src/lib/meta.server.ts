@@ -41,6 +41,7 @@ export function formatListingCaption(listing: ListingRow): string {
     `📍 ${listing.neighborhood}\n` +
     `${details}\n\n` +
     `${description}\n\n` +
+    (listing.video_url ? `🎥 Video walkthrough: ${listing.video_url}\n` : "") +
     `Full details: ${SITE_URL}/accommodation/${listing.id}`
   );
 }
