@@ -236,10 +236,11 @@ export function RequestFlow({ onBackToStart }: { onBackToStart: () => void }) {
                 <FieldError message={errors.email} />
               </div>
               <div>
-                <Label htmlFor="req-phone">Phone number</Label>
+                <Label htmlFor="req-phone">Phone number (add Country Code)</Label>
                 <Input
                   id="req-phone"
                   type="tel"
+                  placeholder="+39 333 1234567"
                   value={data.phone}
                   onChange={(e) => set("phone", e.target.value)}
                 />

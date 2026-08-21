@@ -274,10 +274,11 @@ export function ListingFlow({ onBackToStart }: { onBackToStart: () => void }) {
                 <FieldError message={errors.email} />
               </div>
               <div>
-                <Label htmlFor="l-phone">Phone number</Label>
+                <Label htmlFor="l-phone">Phone number (add Country Code)</Label>
                 <Input
                   id="l-phone"
                   type="tel"
+                  placeholder="+39 333 1234567"
                   value={data.phone}
                   onChange={(e) => set("phone", e.target.value)}
                 />

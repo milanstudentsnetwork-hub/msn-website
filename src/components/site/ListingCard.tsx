@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { BedDouble, Euro, Home, MapPin, ShieldCheck, Sparkles } from "lucide-react";
 import type { ListingRow } from "@/lib/content.functions";
+import { EnquireButton } from "@/components/site/EnquireButton";
 import roomPlaceholder from "@/assets/room-placeholder.jpg";
 
 /** Convert a snake_case DB value like "private_room" to "Private Room" */
@@ -87,12 +88,12 @@ export function ListingCard({ listing }: { listing: ListingRow }) {
               ? "Shared by a student"
               : "Listed by a landlord"}
           </span>
-          <a
-            href={`mailto:${listing.contact_email}?subject=${encodeURIComponent(`MSN enquiry: ${listing.title}`)}`}
+          <EnquireButton
+            email={listing.contact_email}
+            phone={listing.contact_phone}
+            subject={`MSN enquiry: ${listing.title}`}
             className="font-display font-semibold text-accent underline-offset-4 hover:underline"
-          >
-            Enquire
-          </a>
+          />
         </div>
       </div>
     </article>

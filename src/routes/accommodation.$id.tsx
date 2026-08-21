@@ -15,8 +15,10 @@ import {
 } from "lucide-react";
 import { listingQuery } from "@/lib/queries";
 import { Reveal } from "@/components/motion/Motion";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
+import { EnquireButton } from "@/components/site/EnquireButton";
 import { GENDER_PREFERENCES, CONTRACT_STATUSES } from "@/lib/accommodation-options";
+import { cn } from "@/lib/utils";
 import roomPlaceholder from "@/assets/room-placeholder.jpg";
 
 /** Convert a snake_case DB value like "private_room" to "Private Room" */
@@ -238,13 +240,13 @@ function ListingDetailPage() {
               )}
             </dl>
 
-            <Button asChild className="mt-6 w-full">
-              <a
-                href={`mailto:${listing.contact_email}?subject=${encodeURIComponent(`MSN enquiry: ${listing.title}`)}`}
-              >
-                Enquire about this room
-              </a>
-            </Button>
+            <EnquireButton
+              email={listing.contact_email}
+              phone={listing.contact_phone}
+              subject={`MSN enquiry: ${listing.title}`}
+              label="Enquire about this room"
+              className={cn(buttonVariants(), "mt-6 w-full")}
+            />
 
             <p className="mt-4 text-center text-xs text-muted-foreground">
               Never pay a deposit before you've seen the place in person or on live video.
