@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { Search, Send, ShieldAlert, X } from "lucide-react";
+import { Map as MapIcon, Search, Send, ShieldAlert, X } from "lucide-react";
 import { listingsQuery, siteSettingsQuery } from "@/lib/queries";
 import { ListingCard } from "@/components/site/ListingCard";
 import { SectionHeading } from "@/components/site/SectionHeading";
@@ -98,6 +98,7 @@ function AccommodationPage() {
   const [isModern, setIsModern] = useState("all");
   const [mapCenter, setMapCenter] = useState<LatLng | null>(null);
   const [radiusKm, setRadiusKm] = useState(DEFAULT_RADIUS_KM);
+  const [showMap, setShowMap] = useState(false);
 
   const roomTypes = useMemo(
     () => ["all", ...Array.from(new Set(listings.map((l) => l.room_type)))],
@@ -314,35 +315,44 @@ function AccommodationPage() {
               Click the map to drop a pin, then set a radius to only see listings nearby.
             </p>
           </div>
-          {mapCenter && (
-            <Button variant="outline" size="sm" onClick={() => setMapCenter(null)}>
-              <X className="size-4" /> Clear area
+          <div className="flex items-center gap-2">
+            {mapCenter && (
+              <Button variant="outline" size="sm" onClick={() => setMapCenter(null)}>
+                <X className="size-4" /> Clear area
+              </Button>
+            )}
+            <Button variant="outline" size="sm" onClick={() => setShowMap((v) => !v)}>
+              <MapIcon className="size-4" /> {showMap ? "Hide map" : "Show map"}
             </Button>
-          )}
-        </div>
-        {mapCenter && (
-          <div className="mt-4 space-y-1.5">
-            <Label htmlFor="radius">Radius: {radiusKm} km</Label>
-            <input
-              id="radius"
-              type="range"
-              min={0.5}
-              max={10}
-              step={0.5}
-              value={radiusKm}
-              onChange={(e) => setRadiusKm(Number(e.target.value))}
-              className="h-9 w-full accent-[var(--coral)]"
-            />
           </div>
-        )}
-        <div className="relative z-0 mt-4">
-          <ListingsMap
-            listings={listings}
-            center={mapCenter}
-            radiusKm={radiusKm}
-            onCenterChange={setMapCenter}
-          />
         </div>
+        {showMap && (
+          <>
+            {mapCenter && (
+              <div className="mt-4 space-y-1.5">
+                <Label htmlFor="radius">Radius: {radiusKm} km</Label>
+                <input
+                  id="radius"
+                  type="range"
+                  min={0.5}
+                  max={10}
+                  step={0.5}
+                  value={radiusKm}
+                  onChange={(e) => setRadiusKm(Number(e.target.value))}
+                  className="h-9 w-full accent-[var(--coral)]"
+                />
+              </div>
+            )}
+            <div className="relative z-0 mt-4">
+              <ListingsMap
+                listings={listings}
+                center={mapCenter}
+                radiusKm={radiusKm}
+                onCenterChange={setMapCenter}
+              />
+            </div>
+          </>
+        )}
       </Reveal>
 
       {/* Animate in on mount rather than on scroll-into-view: this list re-filters and
