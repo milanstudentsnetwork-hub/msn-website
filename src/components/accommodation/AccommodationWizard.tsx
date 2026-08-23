@@ -1,31 +1,19 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Home, MessageCircle, Search } from "lucide-react";
-import { Float } from "@/components/motion/Motion";
 import { RequestFlow } from "./RequestFlow";
 import { ListingFlow } from "./ListingFlow";
-import wizardGuide from "@/assets/wizard-guide.png";
 
 type Screen = "start" | "request" | "listing";
 
 export function AccommodationWizard() {
   const [screen, setScreen] = useState<Screen>("start");
 
-  if (screen === "request" || screen === "listing") {
-    return (
-      <div className="relative">
-        <div className="relative z-10 -mb-14 mx-auto w-28 sm:w-36">
-          <Float distance={-8} duration={6}>
-            <img src={wizardGuide} alt="" className="w-full drop-shadow-xl" />
-          </Float>
-        </div>
-        {screen === "request" ? (
-          <RequestFlow onBackToStart={() => setScreen("start")} />
-        ) : (
-          <ListingFlow onBackToStart={() => setScreen("start")} />
-        )}
-      </div>
-    );
+  if (screen === "request") {
+    return <RequestFlow onBackToStart={() => setScreen("start")} />;
+  }
+  if (screen === "listing") {
+    return <ListingFlow onBackToStart={() => setScreen("start")} />;
   }
 
   return (
