@@ -90,7 +90,7 @@ export function ListingCard({ listing }: { listing: ListingRow }) {
           </span>
           <EnquireButton
             email={listing.contact_email}
-            phone={listing.contact_phone}
+            phone={listing.phone_contact_consent ? listing.contact_phone : null}
             subject={`MSN enquiry: ${listing.title}`}
             className="font-display font-semibold text-accent underline-offset-4 hover:underline"
           />

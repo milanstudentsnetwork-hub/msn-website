@@ -259,7 +259,7 @@ function ListingDetailPage() {
 
             <EnquireButton
               email={listing.contact_email}
-              phone={listing.contact_phone}
+              phone={listing.phone_contact_consent ? listing.contact_phone : null}
               subject={`MSN enquiry: ${listing.title}`}
               label="Enquire about this room"
               className={cn(buttonVariants(), "mt-6 w-full")}

@@ -38,6 +38,7 @@ type FormState = {
   last_name: string;
   email: string;
   phone: string;
+  phone_contact_consent: boolean;
   available_now: string;
   available_from: string;
   long_term: string;
@@ -66,6 +67,7 @@ const emptyForm: FormState = {
   last_name: "",
   email: "",
   phone: "",
+  phone_contact_consent: false,
   available_now: "",
   available_from: "",
   long_term: "",
@@ -177,6 +179,7 @@ export function ListingFlow({ onBackToStart }: { onBackToStart: () => void }) {
           last_name: data.last_name.trim(),
           email: data.email.trim(),
           phone: data.phone.trim(),
+          phone_contact_consent: data.phone_contact_consent,
           available_now: data.available_now === "yes",
           available_from: data.available_from,
           long_term: data.long_term === "yes",
@@ -284,6 +287,18 @@ export function ListingFlow({ onBackToStart }: { onBackToStart: () => void }) {
                 />
                 <FieldError message={errors.phone} />
               </div>
+            </div>
+
+            <div className="mt-4 flex items-start gap-2 rounded-xl border border-border p-3">
+              <Checkbox
+                id="l-phone-contact-consent"
+                checked={data.phone_contact_consent}
+                onCheckedChange={(v) => set("phone_contact_consent", v === true)}
+              />
+              <Label htmlFor="l-phone-contact-consent" className="font-normal text-sm">
+                Allow other students to contact me directly by WhatsApp, Telegram, or phone call. If
+                left unchecked, they'll only be able to reach you by email.
+              </Label>
             </div>
           </WizardStep>
         )}

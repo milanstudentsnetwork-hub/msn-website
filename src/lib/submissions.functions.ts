@@ -112,6 +112,7 @@ const accommodationListingSchema = z
         message: "Please paste a YouTube video link (youtube.com or youtu.be).",
       }),
     photo_consent: z.boolean(),
+    phone_contact_consent: z.boolean().default(false),
     honeypot: z.string().max(0).optional(),
   })
   .superRefine((val, ctx) => {
@@ -184,6 +185,7 @@ export const submitAccommodationListing = createServerFn({ method: "POST" })
         images: data.images,
         video_url: data.video_url,
         photo_consent: data.photo_consent,
+        phone_contact_consent: data.phone_contact_consent,
         listing_source: "landlord",
         status: "pending",
       });
