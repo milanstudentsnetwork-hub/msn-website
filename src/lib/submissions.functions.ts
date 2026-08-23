@@ -1,16 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
-// Representative lower-bound value per budget bucket, used only for sorting —
-// rent_range/budget_range holds the label shown to users.
-const BUDGET_BUCKET_VALUE: Record<string, number> = {
-  "Less than €400": 350,
-  "€400–€550": 400,
-  "€550–€700": 550,
-  "€700–€850": 700,
-  "More than €850": 850,
-};
-
 const ROOM_TYPES = ["studio", "single_shared_flat", "shared_bed"] as const;
 
 // ============ Flow A: looking for accommodation ============
@@ -92,7 +82,7 @@ const accommodationListingSchema = z
     contract_status: z.enum(["yes", "no", "explain"]),
     contract_notes: z.string().trim().max(1000).nullable().default(null),
     room_type: z.enum(ROOM_TYPES),
-    rent_range: z.enum(["Less than €400", "€400–€550", "€550–€700", "€700–€850", "More than €850"]),
+    price: z.number().positive().max(20000),
     gender_preference: z.enum(["male_only", "female_only", "no_preference"]),
     max_roommates: z.enum(["1", "2", "3", "4", "4+"]),
     location_query: z.string().trim().min(2).max(200),
@@ -173,8 +163,7 @@ export const submitAccommodationListing = createServerFn({ method: "POST" })
         contract_notes: data.contract_notes,
         room_type: data.room_type,
         neighborhood: data.location_query,
-        rent_range: data.rent_range,
-        price: BUDGET_BUCKET_VALUE[data.rent_range] ?? 0,
+        price: data.price,
         gender_preference: data.gender_preference,
         max_roommates: data.max_roommates,
         latitude: data.latitude,

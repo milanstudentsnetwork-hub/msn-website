@@ -8,20 +8,12 @@ export const ROOM_TYPES = [
   { value: "shared_bed", label: "Shared bed space (sharing a room with another person)" },
 ] as const;
 
-export const RENTS = [
-  "Less than €400",
-  "€400–€550",
-  "€550–€700",
-  "€700–€850",
-  "More than €850",
-] as const;
-
 export const ROOMMATES = ["1", "2", "3", "4", "4+"] as const;
 
 export const GENDER_PREFERENCES = [
   { value: "male_only", label: "Only for male" },
   { value: "female_only", label: "Only for female" },
-  { value: "no_preference", label: "No preference, as long as the tenant can pay the rent" },
+  { value: "no_preference", label: "No preference" },
 ] as const;
 
 export const CONTRACT_STATUSES = [

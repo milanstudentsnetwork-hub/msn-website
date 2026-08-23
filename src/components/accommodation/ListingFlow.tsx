@@ -23,7 +23,6 @@ import {
 } from "@/components/ui/select";
 import {
   ROOM_TYPES,
-  RENTS,
   ROOMMATES,
   GENDER_PREFERENCES,
   CONTRACT_STATUSES,
@@ -46,7 +45,7 @@ type FormState = {
   contract_status: string;
   contract_notes: string;
   room_type: string;
-  rent_range: string;
+  price: string;
   gender_preference: string;
   max_roommates: string;
   location_query: string;
@@ -75,7 +74,7 @@ const emptyForm: FormState = {
   contract_status: "",
   contract_notes: "",
   room_type: "",
-  rent_range: "",
+  price: "",
   gender_preference: "",
   max_roommates: "",
   location_query: "",
@@ -112,7 +111,9 @@ function validateStep(step: number, data: FormState): FormErrors {
   }
   if (step === 3) {
     if (!data.room_type) errors.room_type = "Please select an option.";
-    if (!data.rent_range) errors.rent_range = "Please select an option.";
+    if (!data.price.trim() || !(Number(data.price) > 0)) {
+      errors.price = "Enter the monthly rent.";
+    }
     if (!data.gender_preference) errors.gender_preference = "Please select an option.";
     if (!data.max_roommates) errors.max_roommates = "Please select an option.";
     if (!data.location_query.trim()) errors.location_query = "Please search or set a location.";
@@ -187,7 +188,7 @@ export function ListingFlow({ onBackToStart }: { onBackToStart: () => void }) {
           contract_status: data.contract_status as "yes" | "no" | "explain",
           contract_notes: data.contract_notes.trim() || null,
           room_type: data.room_type as "studio" | "single_shared_flat" | "shared_bed",
-          rent_range: data.rent_range as (typeof RENTS)[number],
+          price: Number(data.price),
           gender_preference: data.gender_preference as
             "male_only" | "female_only" | "no_preference",
           max_roommates: data.max_roommates as (typeof ROOMMATES)[number],
@@ -448,20 +449,19 @@ export function ListingFlow({ onBackToStart }: { onBackToStart: () => void }) {
 
             <div className={cn("grid gap-4", data.room_type !== "studio" && "sm:grid-cols-2")}>
               <div>
-                <Label htmlFor="l-rent">What is the monthly rent, including bills?</Label>
-                <Select value={data.rent_range} onValueChange={(v) => set("rent_range", v)}>
-                  <SelectTrigger id="l-rent" className="mt-1">
-                    <SelectValue placeholder="Select a range" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {RENTS.map((r) => (
-                      <SelectItem key={r} value={r}>
-                        {r}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FieldError message={errors.rent_range} />
+                <Label htmlFor="l-rent">What is the monthly rent, including bills? (€)</Label>
+                <Input
+                  id="l-rent"
+                  type="number"
+                  min="1"
+                  step="1"
+                  inputMode="numeric"
+                  placeholder="e.g. 600"
+                  className="mt-1"
+                  value={data.price}
+                  onChange={(e) => set("price", e.target.value)}
+                />
+                <FieldError message={errors.price} />
               </div>
               {data.room_type !== "studio" && (
                 <div>
