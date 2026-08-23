@@ -65,25 +65,8 @@ function formatLabel(value: string) {
 
 function FindOrListPanel() {
   return (
-    <Reveal className="relative overflow-hidden rounded-[2.5rem] bg-card p-6 shadow-lift sm:p-8">
-      <div
-        aria-hidden
-        className="animate-blob absolute -left-16 -top-16 size-56 bg-accent/25 blur-3xl"
-      />
-      <div
-        aria-hidden
-        className="animate-blob absolute -right-12 -bottom-12 size-56 bg-secondary/30 blur-3xl"
-        style={{ animationDelay: "2s" }}
-      />
-      <div className="relative text-center">
-        <span className="inline-flex items-center gap-2 rounded-full bg-secondary/40 px-4 py-1.5 text-xs font-bold tracking-widest text-foreground uppercase">
-          <span className="size-2 rounded-full bg-accent" />
-          Get started
-        </span>
-      </div>
-      <div className="relative mt-6">
-        <AccommodationWizard />
-      </div>
+    <Reveal>
+      <AccommodationWizard />
     </Reveal>
   );
 }
@@ -184,10 +167,7 @@ function AccommodationPage() {
         description="Every listing below has been read by a human on our team. No bots, no ghost flats."
       />
 
-      <div
-        id="find-or-list"
-        className="mt-10 grid gap-8 scroll-mt-28 lg:grid-cols-[1fr_360px]"
-      >
+      <div id="find-or-list" className="mt-10 grid gap-8 scroll-mt-28 lg:grid-cols-[1fr_360px]">
         <div className="lg:hidden">
           <FindOrListPanel />
         </div>
