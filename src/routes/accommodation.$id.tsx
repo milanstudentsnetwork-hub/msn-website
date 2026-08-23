@@ -142,7 +142,29 @@ function ListingDetailPage() {
               {listing.neighborhood}
             </p>
 
-            <p className="mt-6 whitespace-pre-line text-muted-foreground">{listing.description}</p>
+            {(() => {
+              // The listing wizard builds `description` by joining
+              // location_description + additional_notes — when a listing has
+              // no additional notes, `description` is just the location text
+              // verbatim, which would otherwise duplicate the "Getting
+              // around" box below it word for word.
+              const prefixIndex = listing.location_description
+                ? listing.description.indexOf(listing.location_description)
+                : -1;
+              const extraDescription =
+                prefixIndex === 0
+                  ? listing.description
+                      .slice(listing.location_description.length)
+                      .replace(/^\n+/, "")
+                  : listing.description;
+              return (
+                extraDescription.trim() && (
+                  <p className="mt-6 whitespace-pre-line text-muted-foreground">
+                    {extraDescription}
+                  </p>
+                )
+              );
+            })()}
 
             {listing.location_description && (
               <div className="mt-6 rounded-2xl border border-border bg-card p-5">
