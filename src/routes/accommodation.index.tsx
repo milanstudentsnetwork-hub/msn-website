@@ -63,6 +63,31 @@ function formatLabel(value: string) {
     .join(" ");
 }
 
+function FindOrListPanel() {
+  return (
+    <Reveal className="relative overflow-hidden rounded-[2.5rem] bg-card p-6 shadow-lift sm:p-8">
+      <div
+        aria-hidden
+        className="animate-blob absolute -left-16 -top-16 size-56 bg-accent/25 blur-3xl"
+      />
+      <div
+        aria-hidden
+        className="animate-blob absolute -right-12 -bottom-12 size-56 bg-secondary/30 blur-3xl"
+        style={{ animationDelay: "2s" }}
+      />
+      <div className="relative text-center">
+        <span className="inline-flex items-center gap-2 rounded-full bg-secondary/40 px-4 py-1.5 text-xs font-bold tracking-widest text-foreground uppercase">
+          <span className="size-2 rounded-full bg-accent" />
+          Get started
+        </span>
+      </div>
+      <div className="relative mt-6">
+        <AccommodationWizard />
+      </div>
+    </Reveal>
+  );
+}
+
 // Upper bound of each budget bucket collected by the listing wizard. A listing only
 // reliably fits under a given max-price filter if its whole bucket is at or below it —
 // "More than €850" has no upper bound, so it only ever matches the uncapped filter.
@@ -159,289 +184,285 @@ function AccommodationPage() {
         description="Every listing below has been read by a human on our team. No bots, no ghost flats."
       />
 
-      <div id="find-or-list" className="scroll-mt-28">
-        <Reveal className="relative mt-10 overflow-hidden rounded-[2.5rem] bg-card p-8 shadow-lift sm:p-12">
-          <div
-            aria-hidden
-            className="animate-blob absolute -left-20 -top-20 size-72 bg-accent/25 blur-3xl"
-          />
-          <div
-            aria-hidden
-            className="animate-blob absolute -right-16 -bottom-16 size-80 bg-secondary/30 blur-3xl"
-            style={{ animationDelay: "2s" }}
-          />
-          <div className="relative text-center">
-            <span className="inline-flex items-center gap-2 rounded-full bg-secondary/40 px-4 py-1.5 text-xs font-bold tracking-widest text-foreground uppercase">
-              <span className="size-2 rounded-full bg-accent" />
-              Get started
-            </span>
-          </div>
-          <div className="relative mx-auto mt-6 max-w-2xl">
-            <AccommodationWizard />
-          </div>
-        </Reveal>
-      </div>
-
-      <Reveal className="mt-10 rounded-3xl border border-border bg-card p-5 shadow-soft sm:p-6">
-        <div className="grid gap-4 md:grid-cols-[2fr_1fr_1fr]">
-          <div className="space-y-1.5">
-            <Label htmlFor="search">Search</Label>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                id="search"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Navigli, near Bocconi, sunny…"
-                className="pl-9"
-              />
-            </div>
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="room-type">Room type</Label>
-            <select
-              id="room-type"
-              value={roomType}
-              onChange={(e) => setRoomType(e.target.value)}
-              className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm capitalize shadow-sm"
-            >
-              {roomTypes.map((type) => (
-                <option key={type} value={type}>
-                  {type === "all" ? "All" : formatLabel(type)}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="price">
-              {maxPrice >= PRICE_SLIDER_MAX ? "Any budget" : `Max €${maxPrice}/month`}
-            </Label>
-            <input
-              id="price"
-              type="range"
-              min={200}
-              max={PRICE_SLIDER_MAX}
-              step={50}
-              value={maxPrice}
-              onChange={(e) => setMaxPrice(Number(e.target.value))}
-              className="h-9 w-full accent-[var(--coral)]"
-            />
-          </div>
+      <div
+        id="find-or-list"
+        className="mt-10 grid gap-8 scroll-mt-28 lg:grid-cols-[1fr_360px]"
+      >
+        <div className="lg:hidden">
+          <FindOrListPanel />
         </div>
 
-        {/* Mirrors every question the "Post a listing" wizard asks, so students can filter on it. */}
-        <div className="mt-4 grid gap-4 border-t border-border pt-4 sm:grid-cols-2 lg:grid-cols-6">
-          <div className="space-y-1.5">
-            <Label htmlFor="gender-pref">Gender preference</Label>
-            <select
-              id="gender-pref"
-              value={genderPref}
-              onChange={(e) => setGenderPref(e.target.value)}
-              className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm shadow-sm"
-            >
-              <option value="all">Any</option>
-              {GENDER_PREFERENCES.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="roommates">Max sharing bathroom/kitchen</Label>
-            <select
-              id="roommates"
-              value={maxRoommates}
-              onChange={(e) => setMaxRoommates(e.target.value)}
-              className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm shadow-sm"
-            >
-              <option value="all">Any</option>
-              {ROOMMATES.map((r) => (
-                <option key={r} value={r}>
-                  {r}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="contract">Registered contract</Label>
-            <select
-              id="contract"
-              value={contractStatus}
-              onChange={(e) => setContractStatus(e.target.value)}
-              className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm shadow-sm"
-            >
-              <option value="all">Any</option>
-              {CONTRACT_STATUSES.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="available-now">Available now</Label>
-            <select
-              id="available-now"
-              value={availableNow}
-              onChange={(e) => setAvailableNow(e.target.value)}
-              className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm shadow-sm"
-            >
-              {YES_NO_FILTERS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="long-term">Long-term stay</Label>
-            <select
-              id="long-term"
-              value={longTerm}
-              onChange={(e) => setLongTerm(e.target.value)}
-              className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm shadow-sm"
-            >
-              {YES_NO_FILTERS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="modern">Modern</Label>
-            <select
-              id="modern"
-              value={isModern}
-              onChange={(e) => setIsModern(e.target.value)}
-              className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm shadow-sm"
-            >
-              {YES_NO_FILTERS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="verified">MSN Verified</Label>
-            <select
-              id="verified"
-              value={isVerified}
-              onChange={(e) => setIsVerified(e.target.value)}
-              className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm shadow-sm"
-            >
-              {YES_NO_FILTERS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        <div className="mt-4 flex justify-end border-t border-border pt-4">
-          <Button variant="ghost" size="sm" onClick={resetFilters}>
-            <X className="size-4" /> Reset all filters
-          </Button>
-        </div>
-      </Reveal>
-
-      <Reveal className="mt-6 rounded-3xl border border-border bg-card p-5 shadow-soft sm:p-6">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <h3 className="font-display font-semibold">Search by area</h3>
-            <p className="text-sm text-muted-foreground">
-              Click the map to drop a pin, then set a radius to only see listings nearby.
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            {mapCenter && (
-              <Button variant="outline" size="sm" onClick={() => setMapCenter(null)}>
-                <X className="size-4" /> Clear area
-              </Button>
-            )}
-            <Button variant="outline" size="sm" onClick={() => setShowMap((v) => !v)}>
-              <MapIcon className="size-4" /> {showMap ? "Hide map" : "Show map"}
-            </Button>
-          </div>
-        </div>
-        {showMap && (
-          <>
-            {mapCenter && (
-              <div className="mt-4 space-y-1.5">
-                <Label htmlFor="radius">Radius: {radiusKm} km</Label>
+        <div>
+          <Reveal className="rounded-3xl border border-border bg-card p-5 shadow-soft sm:p-6">
+            <div className="grid gap-4 md:grid-cols-[2fr_1fr_1fr]">
+              <div className="space-y-1.5">
+                <Label htmlFor="search">Search</Label>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    id="search"
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    placeholder="Navigli, near Bocconi, sunny…"
+                    className="pl-9"
+                  />
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="room-type">Room type</Label>
+                <select
+                  id="room-type"
+                  value={roomType}
+                  onChange={(e) => setRoomType(e.target.value)}
+                  className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm capitalize shadow-sm"
+                >
+                  {roomTypes.map((type) => (
+                    <option key={type} value={type}>
+                      {type === "all" ? "All" : formatLabel(type)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="price">
+                  {maxPrice >= PRICE_SLIDER_MAX ? "Any budget" : `Max €${maxPrice}/month`}
+                </Label>
                 <input
-                  id="radius"
+                  id="price"
                   type="range"
-                  min={0.5}
-                  max={10}
-                  step={0.5}
-                  value={radiusKm}
-                  onChange={(e) => setRadiusKm(Number(e.target.value))}
+                  min={200}
+                  max={PRICE_SLIDER_MAX}
+                  step={50}
+                  value={maxPrice}
+                  onChange={(e) => setMaxPrice(Number(e.target.value))}
                   className="h-9 w-full accent-[var(--coral)]"
                 />
               </div>
-            )}
-            <div className="relative z-0 mt-4">
-              <ListingsMap
-                listings={listings}
-                center={mapCenter}
-                radiusKm={radiusKm}
-                onCenterChange={setMapCenter}
-              />
             </div>
-          </>
-        )}
-      </Reveal>
 
-      {/* Animate in on mount rather than on scroll-into-view: this list re-filters and
+            {/* Mirrors every question the "Post a listing" wizard asks, so students can filter on it. */}
+            <div className="mt-4 grid gap-4 border-t border-border pt-4 sm:grid-cols-2 lg:grid-cols-6">
+              <div className="space-y-1.5">
+                <Label htmlFor="gender-pref">Gender preference</Label>
+                <select
+                  id="gender-pref"
+                  value={genderPref}
+                  onChange={(e) => setGenderPref(e.target.value)}
+                  className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm shadow-sm"
+                >
+                  <option value="all">Any</option>
+                  {GENDER_PREFERENCES.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="roommates">Max sharing bathroom/kitchen</Label>
+                <select
+                  id="roommates"
+                  value={maxRoommates}
+                  onChange={(e) => setMaxRoommates(e.target.value)}
+                  className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm shadow-sm"
+                >
+                  <option value="all">Any</option>
+                  {ROOMMATES.map((r) => (
+                    <option key={r} value={r}>
+                      {r}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="contract">Registered contract</Label>
+                <select
+                  id="contract"
+                  value={contractStatus}
+                  onChange={(e) => setContractStatus(e.target.value)}
+                  className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm shadow-sm"
+                >
+                  <option value="all">Any</option>
+                  {CONTRACT_STATUSES.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="available-now">Available now</Label>
+                <select
+                  id="available-now"
+                  value={availableNow}
+                  onChange={(e) => setAvailableNow(e.target.value)}
+                  className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm shadow-sm"
+                >
+                  {YES_NO_FILTERS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="long-term">Long-term stay</Label>
+                <select
+                  id="long-term"
+                  value={longTerm}
+                  onChange={(e) => setLongTerm(e.target.value)}
+                  className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm shadow-sm"
+                >
+                  {YES_NO_FILTERS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="modern">Modern</Label>
+                <select
+                  id="modern"
+                  value={isModern}
+                  onChange={(e) => setIsModern(e.target.value)}
+                  className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm shadow-sm"
+                >
+                  {YES_NO_FILTERS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="verified">MSN Verified</Label>
+                <select
+                  id="verified"
+                  value={isVerified}
+                  onChange={(e) => setIsVerified(e.target.value)}
+                  className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm shadow-sm"
+                >
+                  {YES_NO_FILTERS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div className="mt-4 flex justify-end border-t border-border pt-4">
+              <Button variant="ghost" size="sm" onClick={resetFilters}>
+                <X className="size-4" /> Reset all filters
+              </Button>
+            </div>
+          </Reveal>
+
+          <Reveal className="mt-6 rounded-3xl border border-border bg-card p-5 shadow-soft sm:p-6">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <h3 className="font-display font-semibold">Search by area</h3>
+                <p className="text-sm text-muted-foreground">
+                  Click the map to drop a pin, then set a radius to only see listings nearby.
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                {mapCenter && (
+                  <Button variant="outline" size="sm" onClick={() => setMapCenter(null)}>
+                    <X className="size-4" /> Clear area
+                  </Button>
+                )}
+                <Button variant="outline" size="sm" onClick={() => setShowMap((v) => !v)}>
+                  <MapIcon className="size-4" /> {showMap ? "Hide map" : "Show map"}
+                </Button>
+              </div>
+            </div>
+            {showMap && (
+              <>
+                {mapCenter && (
+                  <div className="mt-4 space-y-1.5">
+                    <Label htmlFor="radius">Radius: {radiusKm} km</Label>
+                    <input
+                      id="radius"
+                      type="range"
+                      min={0.5}
+                      max={10}
+                      step={0.5}
+                      value={radiusKm}
+                      onChange={(e) => setRadiusKm(Number(e.target.value))}
+                      className="h-9 w-full accent-[var(--coral)]"
+                    />
+                  </div>
+                )}
+                <div className="relative z-0 mt-4">
+                  <ListingsMap
+                    listings={listings}
+                    center={mapCenter}
+                    radiusKm={radiusKm}
+                    onCenterChange={setMapCenter}
+                  />
+                </div>
+              </>
+            )}
+          </Reveal>
+
+          {/* Animate in on mount rather than on scroll-into-view: this list re-filters and
           re-mounts constantly, and a viewport-triggered reveal can leave late-mounting
           cards permanently invisible once the parent's one-time trigger has already fired. */}
-      <motion.div
-        className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
-        variants={staggerParent}
-        initial="hidden"
-        animate="show"
-      >
-        {filtered.map((listing) => (
-          <motion.div key={listing.id} variants={staggerChild} className="h-full">
-            <ListingCard listing={listing} />
+          <motion.div
+            className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+            variants={staggerParent}
+            initial="hidden"
+            animate="show"
+          >
+            {filtered.map((listing) => (
+              <motion.div key={listing.id} variants={staggerChild} className="h-full">
+                <ListingCard listing={listing} />
+              </motion.div>
+            ))}
           </motion.div>
-        ))}
-      </motion.div>
 
-      {filtered.length === 0 && (
-        <p className="mt-16 text-center text-muted-foreground">
-          No rooms match those filters yet. Try widening your budget.
-        </p>
-      )}
+          {filtered.length === 0 && (
+            <p className="mt-16 text-center text-muted-foreground">
+              No rooms match those filters yet. Try widening your budget.
+            </p>
+          )}
 
-      {(telegramAccommodationUrl || whatsappAccommodationUrl) && (
-        <Reveal className="mt-10 rounded-3xl border border-border bg-card p-6 text-center shadow-soft">
-          <p className="font-display font-semibold">Want new rooms the moment they're posted?</p>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Join our accommodation group for real-time listings.
-          </p>
-          <div className="mt-4 flex flex-wrap justify-center gap-3">
-            {telegramAccommodationUrl && (
-              <Button asChild variant="outline" size="sm">
-                <a href={telegramAccommodationUrl} target="_blank" rel="noreferrer">
-                  <Send className="size-4" /> Telegram
-                </a>
-              </Button>
-            )}
-            {whatsappAccommodationUrl && (
-              <Button asChild variant="outline" size="sm">
-                <a href={whatsappAccommodationUrl} target="_blank" rel="noreferrer">
-                  WhatsApp
-                </a>
-              </Button>
-            )}
+          {(telegramAccommodationUrl || whatsappAccommodationUrl) && (
+            <Reveal className="mt-10 rounded-3xl border border-border bg-card p-6 text-center shadow-soft">
+              <p className="font-display font-semibold">
+                Want new rooms the moment they're posted?
+              </p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Join our accommodation group for real-time listings.
+              </p>
+              <div className="mt-4 flex flex-wrap justify-center gap-3">
+                {telegramAccommodationUrl && (
+                  <Button asChild variant="outline" size="sm">
+                    <a href={telegramAccommodationUrl} target="_blank" rel="noreferrer">
+                      <Send className="size-4" /> Telegram
+                    </a>
+                  </Button>
+                )}
+                {whatsappAccommodationUrl && (
+                  <Button asChild variant="outline" size="sm">
+                    <a href={whatsappAccommodationUrl} target="_blank" rel="noreferrer">
+                      WhatsApp
+                    </a>
+                  </Button>
+                )}
+              </div>
+            </Reveal>
+          )}
+        </div>
+
+        <aside className="hidden lg:block">
+          <div className="sticky top-24">
+            <FindOrListPanel />
           </div>
-        </Reveal>
-      )}
+        </aside>
+      </div>
 
       <section className="mt-24 grid items-center gap-10 lg:grid-cols-2">
         <Reveal>
