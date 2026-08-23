@@ -159,6 +159,29 @@ function AccommodationPage() {
         description="Every listing below has been read by a human on our team. No bots, no ghost flats."
       />
 
+      <div id="find-or-list" className="scroll-mt-28">
+        <Reveal className="relative mt-10 overflow-hidden rounded-[2.5rem] bg-card p-8 shadow-lift sm:p-12">
+          <div
+            aria-hidden
+            className="animate-blob absolute -left-20 -top-20 size-72 bg-accent/25 blur-3xl"
+          />
+          <div
+            aria-hidden
+            className="animate-blob absolute -right-16 -bottom-16 size-80 bg-secondary/30 blur-3xl"
+            style={{ animationDelay: "2s" }}
+          />
+          <div className="relative text-center">
+            <span className="inline-flex items-center gap-2 rounded-full bg-secondary/40 px-4 py-1.5 text-xs font-bold tracking-widest text-foreground uppercase">
+              <span className="size-2 rounded-full bg-accent" />
+              Get started
+            </span>
+          </div>
+          <div className="relative mx-auto mt-6 max-w-2xl">
+            <AccommodationWizard />
+          </div>
+        </Reveal>
+      </div>
+
       <Reveal className="mt-10 rounded-3xl border border-border bg-card p-5 shadow-soft sm:p-6">
         <div className="grid gap-4 md:grid-cols-[2fr_1fr_1fr]">
           <div className="space-y-1.5">
@@ -457,18 +480,6 @@ function AccommodationPage() {
             </li>
           ))}
         </ul>
-      </section>
-
-      <section id="find-or-list" className="mt-24 scroll-mt-28">
-        <SectionHeading
-          eyebrow="Get started"
-          title="Find or List Accommodation"
-          description="Tell us what you need and we will help you find the right match."
-          align="center"
-        />
-        <div className="mx-auto mt-10 max-w-2xl">
-          <AccommodationWizard />
-        </div>
       </section>
     </div>
   );
