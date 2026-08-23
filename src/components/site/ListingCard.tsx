@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { BedDouble, Euro, Home, MapPin, ShieldCheck, Sparkles } from "lucide-react";
+import { BadgeCheck, BedDouble, Euro, Home, MapPin, ShieldCheck, Sparkles } from "lucide-react";
 import type { ListingRow } from "@/lib/content.functions";
 import { EnquireButton } from "@/components/site/EnquireButton";
 import roomPlaceholder from "@/assets/room-placeholder.jpg";
@@ -36,6 +36,12 @@ export function ListingCard({ listing }: { listing: ListingRow }) {
           <span className="absolute left-4 top-4 rounded-full bg-card/95 px-3 py-1 text-xs font-bold shadow-soft">
             {formatLabel(listing.room_type)}
           </span>
+          {listing.is_verified && (
+            <span className="absolute left-4 top-14 inline-flex items-center gap-1 rounded-full bg-accent px-3 py-1 text-xs font-bold text-accent-foreground shadow-soft">
+              <BadgeCheck className="size-3.5" />
+              MSN Verified
+            </span>
+          )}
           {listing.is_featured && (
             <span className="absolute right-4 top-4 inline-flex items-center gap-1 rounded-full bg-secondary px-3 py-1 text-xs font-bold text-secondary-foreground shadow-soft">
               <Sparkles className="size-3.5" />

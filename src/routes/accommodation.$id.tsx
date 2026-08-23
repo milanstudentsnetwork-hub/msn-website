@@ -2,6 +2,7 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import {
+  BadgeCheck,
   BedDouble,
   Bath,
   Euro,
@@ -220,10 +221,19 @@ function ListingDetailPage() {
 
         <div>
           <div className="sticky top-24 rounded-3xl border border-border bg-card p-6 shadow-soft">
-            {listing.is_featured && (
-              <span className="mb-4 inline-flex items-center gap-1 rounded-full bg-secondary px-3 py-1 text-xs font-bold text-secondary-foreground">
-                <Sparkles className="size-3.5" /> Featured
-              </span>
+            {(listing.is_verified || listing.is_featured) && (
+              <div className="mb-4 flex flex-wrap gap-2">
+                {listing.is_verified && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-accent px-3 py-1 text-xs font-bold text-accent-foreground">
+                    <BadgeCheck className="size-3.5" /> MSN Verified
+                  </span>
+                )}
+                {listing.is_featured && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-secondary px-3 py-1 text-xs font-bold text-secondary-foreground">
+                    <Sparkles className="size-3.5" /> Featured
+                  </span>
+                )}
+              </div>
             )}
             <p className="inline-flex items-center gap-1.5 font-display text-2xl font-semibold">
               <Euro className="size-5" />

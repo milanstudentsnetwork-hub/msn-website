@@ -34,6 +34,7 @@ export type Database = {
           images: string[];
           is_featured: boolean;
           is_modern: boolean | null;
+          is_verified: boolean;
           last_name: string;
           latitude: number | null;
           listing_source: Database["public"]["Enums"]["listing_source"];
@@ -80,6 +81,7 @@ export type Database = {
           images?: string[];
           is_featured?: boolean;
           is_modern?: boolean | null;
+          is_verified?: boolean;
           last_name?: string;
           latitude?: number | null;
           listing_source?: Database["public"]["Enums"]["listing_source"];
@@ -126,6 +128,7 @@ export type Database = {
           images?: string[];
           is_featured?: boolean;
           is_modern?: boolean | null;
+          is_verified?: boolean;
           last_name?: string;
           latitude?: number | null;
           listing_source?: Database["public"]["Enums"]["listing_source"];

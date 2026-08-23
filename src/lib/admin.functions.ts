@@ -202,6 +202,7 @@ const listingUpdateSchema = z.object({
   neighborhood: z.string().trim().max(120).optional(),
   room_type: z.string().trim().max(60).optional(),
   is_featured: z.boolean().optional(),
+  is_verified: z.boolean().optional(),
   status: z.enum(["pending", "approved", "rejected", "published", "matched", "closed"]).optional(),
   admin_notes: z.string().trim().max(2000).nullable().optional(),
 });

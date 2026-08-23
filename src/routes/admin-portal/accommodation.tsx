@@ -106,6 +106,15 @@ function AccommodationAdminPage() {
     }
   }
 
+  async function handleToggleVerified(listing: ListingRow) {
+    try {
+      await updateFn({ data: { id: listing.id, is_verified: !listing.is_verified } });
+      refresh();
+    } catch {
+      toast.error("Couldn't update this listing.");
+    }
+  }
+
   async function handleSaveEdit(e: React.FormEvent) {
     e.preventDefault();
     if (!editing) return;
@@ -177,19 +186,20 @@ function AccommodationAdminPage() {
               <TableHead>Neighborhood</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Featured</TableHead>
+              <TableHead>Verified</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={9} className="text-center text-muted-foreground">
+                <TableCell colSpan={10} className="text-center text-muted-foreground">
                   Loading…
                 </TableCell>
               </TableRow>
             ) : filtered.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={9} className="text-center text-muted-foreground">
+                <TableCell colSpan={10} className="text-center text-muted-foreground">
                   No listings here.
                 </TableCell>
               </TableRow>
@@ -260,6 +270,12 @@ function AccommodationAdminPage() {
                     <Switch
                       checked={listing.is_featured}
                       onCheckedChange={() => handleToggleFeatured(listing)}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Switch
+                      checked={listing.is_verified}
+                      onCheckedChange={() => handleToggleVerified(listing)}
                     />
                   </TableCell>
                   <TableCell className="text-right space-x-1 whitespace-nowrap">
