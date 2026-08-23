@@ -96,6 +96,7 @@ function AccommodationPage() {
   const [availableNow, setAvailableNow] = useState("all");
   const [longTerm, setLongTerm] = useState("all");
   const [isModern, setIsModern] = useState("all");
+  const [isVerified, setIsVerified] = useState("all");
   const [mapCenter, setMapCenter] = useState<LatLng | null>(null);
   const [radiusKm, setRadiusKm] = useState(DEFAULT_RADIUS_KM);
   const [showMap, setShowMap] = useState(false);
@@ -130,6 +131,7 @@ function AccommodationPage() {
       (isModern === "all" ||
         listing.is_modern == null ||
         listing.is_modern === (isModern === "yes")) &&
+      (isVerified === "all" || listing.is_verified === (isVerified === "yes")) &&
       withinArea
     );
   });
@@ -144,6 +146,7 @@ function AccommodationPage() {
     setAvailableNow("all");
     setLongTerm("all");
     setIsModern("all");
+    setIsVerified("all");
     setMapCenter(null);
     setRadiusKm(DEFAULT_RADIUS_KM);
   }
@@ -289,6 +292,21 @@ function AccommodationPage() {
               id="modern"
               value={isModern}
               onChange={(e) => setIsModern(e.target.value)}
+              className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm shadow-sm"
+            >
+              {YES_NO_FILTERS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="verified">MSN Verified</Label>
+            <select
+              id="verified"
+              value={isVerified}
+              onChange={(e) => setIsVerified(e.target.value)}
               className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm shadow-sm"
             >
               {YES_NO_FILTERS.map((opt) => (
