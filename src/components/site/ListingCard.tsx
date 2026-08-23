@@ -88,12 +88,7 @@ export function ListingCard({ listing }: { listing: ListingRow }) {
       </Link>
 
       <div className="px-6 pb-6">
-        <div className="flex items-center justify-between gap-3 border-t border-border pt-5 text-xs">
-          <span className="font-semibold text-muted-foreground">
-            {listing.listing_source === "student_upload"
-              ? "Shared by a student"
-              : "Listed by a landlord"}
-          </span>
+        <div className="flex items-center justify-end gap-3 border-t border-border pt-5 text-xs">
           <EnquireButton
             email={listing.contact_email}
             phone={listing.phone_contact_consent ? listing.contact_phone : null}

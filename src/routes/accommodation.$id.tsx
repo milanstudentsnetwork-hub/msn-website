@@ -230,11 +230,6 @@ function ListingDetailPage() {
               <Euro className="size-5" />
               {priceLabel}
             </p>
-            <p className="text-sm text-muted-foreground">
-              {listing.listing_source === "student_upload"
-                ? "Shared by a student"
-                : "Listed by a landlord"}
-            </p>
 
             <dl className="mt-6 space-y-3 border-t border-border pt-5 text-sm">
               <DetailRow label="Available">
