@@ -16,7 +16,14 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { adminListServices, adminUpsertService, adminDeleteService } from "@/lib/admin.functions";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -126,7 +133,7 @@ function ServicesAdminPage() {
       });
       toast.success(form.id ? "Service updated." : "Service created.");
       setOpen(false);
-      refresh();
+      await refresh();
     } catch {
       toast.error("Couldn't save this service.");
     } finally {
@@ -139,7 +146,7 @@ function ServicesAdminPage() {
     try {
       await deleteFn({ data: { id } });
       toast.success("Service deleted.");
-      refresh();
+      await refresh();
     } catch {
       toast.error("Couldn't delete this service.");
     }

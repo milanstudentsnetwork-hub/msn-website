@@ -91,7 +91,7 @@ function AccommodationAdminPage() {
     try {
       await updateFn({ data: { id, status } });
       toast.success(`Listing marked ${status}.`);
-      refresh();
+      await refresh();
     } catch {
       toast.error("Couldn't update this listing.");
     }
@@ -100,7 +100,7 @@ function AccommodationAdminPage() {
   async function handleToggleFeatured(listing: ListingRow) {
     try {
       await updateFn({ data: { id: listing.id, is_featured: !listing.is_featured } });
-      refresh();
+      await refresh();
     } catch {
       toast.error("Couldn't update this listing.");
     }
@@ -109,7 +109,7 @@ function AccommodationAdminPage() {
   async function handleToggleVerified(listing: ListingRow) {
     try {
       await updateFn({ data: { id: listing.id, is_verified: !listing.is_verified } });
-      refresh();
+      await refresh();
     } catch {
       toast.error("Couldn't update this listing.");
     }
@@ -133,7 +133,7 @@ function AccommodationAdminPage() {
       });
       toast.success("Listing updated.");
       setEditing(null);
-      refresh();
+      await refresh();
     } catch {
       toast.error("Couldn't save changes.");
     } finally {
@@ -146,7 +146,7 @@ function AccommodationAdminPage() {
     try {
       await deleteFn({ data: { id } });
       toast.success("Listing deleted.");
-      refresh();
+      await refresh();
     } catch {
       toast.error("Couldn't delete this listing.");
     }

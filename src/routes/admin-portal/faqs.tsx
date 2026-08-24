@@ -16,7 +16,14 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { adminListFaqs, adminUpsertFaq, adminDeleteFaq } from "@/lib/admin.functions";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -99,7 +106,7 @@ function FaqsAdminPage() {
       });
       toast.success(form.id ? "FAQ updated." : "FAQ created.");
       setOpen(false);
-      refresh();
+      await refresh();
     } catch {
       toast.error("Couldn't save this FAQ.");
     } finally {
@@ -112,7 +119,7 @@ function FaqsAdminPage() {
     try {
       await deleteFn({ data: { id } });
       toast.success("FAQ deleted.");
-      refresh();
+      await refresh();
     } catch {
       toast.error("Couldn't delete this FAQ.");
     }

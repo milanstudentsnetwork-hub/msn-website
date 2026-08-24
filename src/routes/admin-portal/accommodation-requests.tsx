@@ -12,7 +12,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import {
   adminListAccommodationRequests,
   adminUpdateAccommodationRequest,
@@ -73,7 +80,7 @@ function AccommodationRequestsAdminPage() {
   async function handleStatusChange(id: string, status: RequestStatus) {
     try {
       await updateFn({ data: { id, status } });
-      refresh();
+      await refresh();
     } catch {
       toast.error("Couldn't update status.");
     }
@@ -85,7 +92,7 @@ function AccommodationRequestsAdminPage() {
       await deleteFn({ data: { id } });
       toast.success("Request deleted.");
       setViewing(null);
-      refresh();
+      await refresh();
     } catch {
       toast.error("Couldn't delete this request.");
     }
@@ -124,7 +131,9 @@ function AccommodationRequestsAdminPage() {
               requests.map((request) => (
                 <TableRow key={request.id}>
                   <TableCell>
-                    <p className="font-medium">{request.first_name} {request.last_name}</p>
+                    <p className="font-medium">
+                      {request.first_name} {request.last_name}
+                    </p>
                     <p className="text-xs text-muted-foreground">{request.email}</p>
                   </TableCell>
                   <TableCell className="text-sm">
@@ -173,21 +182,50 @@ function AccommodationRequestsAdminPage() {
           {viewing && (
             <div className="space-y-3 text-sm">
               <div className="rounded-xl bg-muted/60 p-3">
-                <p><strong>Email:</strong> {viewing.email}</p>
-                <p><strong>Phone:</strong> {viewing.phone}</p>
-                <p><strong>Gender:</strong> {viewing.gender.replace(/_/g, " ")}</p>
-                <p><strong>Move immediately:</strong> {viewing.move_immediately ? "Yes" : "No"}</p>
-                <p><strong>Stay type:</strong> {viewing.stay_type.replace("_", " ")}</p>
-                {viewing.date_from && <p><strong>From:</strong> {viewing.date_from}</p>}
-                {viewing.date_until && <p><strong>Until:</strong> {viewing.date_until}</p>}
-                <p><strong>Needs contract:</strong> {viewing.needs_contract ? "Yes" : "No"}</p>
-                <p><strong>Room type:</strong> {ROOM_TYPE_LABEL[viewing.room_type] ?? viewing.room_type}</p>
-                <p><strong>Budget:</strong> {viewing.budget_range}</p>
-                <p><strong>Max roommates:</strong> {viewing.max_roommates}</p>
+                <p>
+                  <strong>Email:</strong> {viewing.email}
+                </p>
+                <p>
+                  <strong>Phone:</strong> {viewing.phone}
+                </p>
+                <p>
+                  <strong>Gender:</strong> {viewing.gender.replace(/_/g, " ")}
+                </p>
+                <p>
+                  <strong>Move immediately:</strong> {viewing.move_immediately ? "Yes" : "No"}
+                </p>
+                <p>
+                  <strong>Stay type:</strong> {viewing.stay_type.replace("_", " ")}
+                </p>
+                {viewing.date_from && (
+                  <p>
+                    <strong>From:</strong> {viewing.date_from}
+                  </p>
+                )}
+                {viewing.date_until && (
+                  <p>
+                    <strong>Until:</strong> {viewing.date_until}
+                  </p>
+                )}
+                <p>
+                  <strong>Needs contract:</strong> {viewing.needs_contract ? "Yes" : "No"}
+                </p>
+                <p>
+                  <strong>Room type:</strong>{" "}
+                  {ROOM_TYPE_LABEL[viewing.room_type] ?? viewing.room_type}
+                </p>
+                <p>
+                  <strong>Budget:</strong> {viewing.budget_range}
+                </p>
+                <p>
+                  <strong>Max roommates:</strong> {viewing.max_roommates}
+                </p>
               </div>
               <div>
                 <p className="font-medium">Location preferences</p>
-                <p className="whitespace-pre-line text-muted-foreground">{viewing.location_preferences}</p>
+                <p className="whitespace-pre-line text-muted-foreground">
+                  {viewing.location_preferences}
+                </p>
               </div>
               {viewing.notes && (
                 <div>

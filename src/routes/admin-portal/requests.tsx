@@ -16,7 +16,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { adminListRequests, adminUpdateRequest } from "@/lib/admin.functions";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -80,7 +87,7 @@ function RequestsAdminPage() {
   async function handleStatusChange(id: string, status: RequestStatus) {
     try {
       await updateFn({ data: { id, status } });
-      refresh();
+      await refresh();
     } catch {
       toast.error("Couldn't update status.");
     }
@@ -110,7 +117,7 @@ function RequestsAdminPage() {
       });
       toast.success("Request updated.");
       setEditing(null);
-      refresh();
+      await refresh();
     } catch {
       toast.error("Couldn't save changes.");
     } finally {

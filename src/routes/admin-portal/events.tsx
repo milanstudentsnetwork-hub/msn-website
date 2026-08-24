@@ -151,7 +151,7 @@ function EventsAdminPage() {
       });
       toast.success(form.id ? "Event updated." : "Event created.");
       setOpen(false);
-      refresh();
+      await refresh();
     } catch {
       toast.error("Couldn't save this event.");
     } finally {
@@ -164,7 +164,7 @@ function EventsAdminPage() {
     try {
       await deleteFn({ data: { id } });
       toast.success("Event deleted.");
-      refresh();
+      await refresh();
     } catch {
       toast.error("Couldn't delete this event.");
     }
@@ -174,7 +174,7 @@ function EventsAdminPage() {
     try {
       await duplicateFn({ data: { id } });
       toast.success("Duplicated as a draft.");
-      refresh();
+      await refresh();
     } catch {
       toast.error("Couldn't duplicate this event.");
     }

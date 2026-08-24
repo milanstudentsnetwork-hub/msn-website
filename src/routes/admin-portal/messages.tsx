@@ -45,7 +45,7 @@ function MessagesAdminPage() {
   async function handleToggleRead(message: MessageRow) {
     try {
       await markReadFn({ data: { id: message.id, is_read: !message.is_read } });
-      refresh();
+      await refresh();
     } catch {
       toast.error("Couldn't update this message.");
     }
@@ -56,7 +56,7 @@ function MessagesAdminPage() {
     try {
       await deleteFn({ data: { id } });
       toast.success("Message deleted.");
-      refresh();
+      await refresh();
     } catch {
       toast.error("Couldn't delete this message.");
     }
@@ -73,10 +73,7 @@ function MessagesAdminPage() {
       ) : (
         <div className="mt-6 space-y-3">
           {messages.map((message) => (
-            <div
-              key={message.id}
-              className="rounded-2xl border border-border bg-card p-4"
-            >
+            <div key={message.id} className="rounded-2xl border border-border bg-card p-4">
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <div>
                   <p className="font-medium">
