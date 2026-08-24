@@ -76,7 +76,7 @@ export function CoverImageUploader({
   if (value) {
     return (
       <div>
-        <div className="group relative aspect-[16/9] w-full overflow-hidden rounded-xl border border-border">
+        <div className="group relative aspect-[16/10] w-full overflow-hidden rounded-xl border border-border">
           <img src={value} alt="Cover" className="h-full w-full object-cover" />
           <button
             type="button"
@@ -97,7 +97,7 @@ export function CoverImageUploader({
         type="button"
         onClick={() => inputRef.current?.click()}
         disabled={uploading}
-        className="flex aspect-[16/9] w-full flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-border text-muted-foreground transition-colors hover:border-accent hover:text-foreground"
+        className="flex aspect-[16/10] w-full flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-border text-muted-foreground transition-colors hover:border-accent hover:text-foreground"
       >
         {uploading ? <Loader2 className="size-5 animate-spin" /> : <ImagePlus className="size-5" />}
         <span className="text-xs">{uploading ? "Uploading…" : "Upload cover image"}</span>
@@ -109,7 +109,9 @@ export function CoverImageUploader({
         className="hidden"
         onChange={(e) => handleFile(e.target.files?.[0])}
       />
-      <p className="mt-2 text-xs text-muted-foreground">JPG, PNG, or WEBP, 10MB max. Optional.</p>
+      <p className="mt-2 text-xs text-muted-foreground">
+        Recommended 1600×1000px (16:10). JPG, PNG, or WEBP, 10MB max. Optional.
+      </p>
       {error && <p className="mt-1 text-xs text-destructive">{error}</p>}
     </div>
   );
