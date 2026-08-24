@@ -19,7 +19,9 @@ export function ServiceCard({ service }: { service: ServiceRow }) {
             service.is_paid ? "bg-coral-soft text-foreground" : "bg-mint/60 text-foreground"
           }`}
         >
-          {service.is_paid ? service.price_note || `From €${service.price ?? 0}` : "Free"}
+          {service.is_paid
+            ? `From €${service.price ?? 0}${service.price_note ? ` ${service.price_note}` : ""}`
+            : "Free"}
         </span>
       </div>
 
