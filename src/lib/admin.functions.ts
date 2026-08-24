@@ -1,7 +1,10 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireAdmin } from "@/integrations/supabase/require-admin";
+import { EVENT_CATEGORIES } from "@/lib/event-options";
 import type { Database } from "@/integrations/supabase/types";
+
+const EVENT_CATEGORY_VALUES = EVENT_CATEGORIES.map((c) => c.value) as [string, ...string[]];
 
 type EventRow = Database["public"]["Tables"]["events"]["Row"];
 type ServiceRow = Database["public"]["Tables"]["services"]["Row"];
@@ -36,7 +39,7 @@ const eventSchema = z.object({
   start_time: z.string().trim().max(20).nullable().default(null),
   end_time: z.string().trim().max(20).nullable().default(null),
   location: z.string().trim().max(200).default(""),
-  category: z.string().trim().max(60).default("social"),
+  category: z.enum(EVENT_CATEGORY_VALUES).default("social"),
   cover_image_url: z.string().trim().max(2000).nullable().default(null),
   rsvp_url: z.string().trim().max(2000).nullable().default(null),
   capacity: z.number().int().nullable().default(null),

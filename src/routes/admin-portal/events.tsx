@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { AdminShell } from "@/components/admin/AdminShell";
+import { CoverImageUploader } from "@/components/admin/CoverImageUploader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,13 +17,28 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import {
   adminListEvents,
   adminUpsertEvent,
   adminDeleteEvent,
   adminDuplicateEvent,
 } from "@/lib/admin.functions";
+import { EVENT_CATEGORIES } from "@/lib/event-options";
 import type { Database } from "@/integrations/supabase/types";
 
 type EventRow = Database["public"]["Tables"]["events"]["Row"];
@@ -235,20 +251,31 @@ function EventsAdminPage() {
                 </div>
                 <div>
                   <Label htmlFor="category">Category</Label>
-                  <Input
-                    id="category"
+                  <Select
                     value={form.category}
-                    onChange={(e) => setForm({ ...form, category: e.target.value })}
-                  />
+                    onValueChange={(v) => setForm({ ...form, category: v })}
+                  >
+                    <SelectTrigger id="category" className="mt-1">
+                      <SelectValue placeholder="Select a category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {EVENT_CATEGORIES.map((c) => (
+                        <SelectItem key={c.value} value={c.value}>
+                          {c.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
               <div>
-                <Label htmlFor="cover_image_url">Cover image URL</Label>
-                <Input
-                  id="cover_image_url"
-                  value={form.cover_image_url}
-                  onChange={(e) => setForm({ ...form, cover_image_url: e.target.value })}
-                />
+                <Label>Cover image</Label>
+                <div className="mt-1">
+                  <CoverImageUploader
+                    value={form.cover_image_url}
+                    onChange={(url) => setForm({ ...form, cover_image_url: url })}
+                  />
+                </div>
               </div>
               <div>
                 <Label htmlFor="rsvp_url">RSVP / ticket link</Label>

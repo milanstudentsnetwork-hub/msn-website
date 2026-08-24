@@ -4,9 +4,11 @@ import { Button } from "@/components/ui/button";
 
 const categoryTint: Record<string, string> = {
   social: "bg-coral-soft text-foreground",
+  welcome: "bg-coral-soft text-foreground",
   culture: "bg-secondary/50 text-foreground",
   networking: "bg-mint/50 text-foreground",
-  sport: "bg-sunshine-soft text-foreground",
+  sports: "bg-sunshine-soft text-foreground",
+  nightlife: "bg-primary/20 text-foreground",
 };
 
 export function formatEventDate(value: string) {

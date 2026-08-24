@@ -6,10 +6,12 @@ const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"] as const;
 const requestSchema = z.object({
   fileName: z.string().trim().min(1).max(200),
   contentType: z.enum(ALLOWED_TYPES),
+  folder: z.enum(["listings", "events"]).default("listings"),
 });
 
 /** Issues a short-lived presigned PUT URL so the browser can upload a listing
- * photo directly to R2 without ever seeing the storage credentials. */
+ * or event cover photo directly to R2 without ever seeing the storage
+ * credentials. */
 export const getListingPhotoUploadUrl = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => requestSchema.parse(data))
   .handler(async ({ data }) => {
@@ -22,7 +24,7 @@ export const getListingPhotoUploadUrl = createServerFn({ method: "POST" })
       const { bucket, publicBaseUrl } = getR2Config();
 
       const ext = data.fileName.split(".").pop()?.toLowerCase() || "jpg";
-      const key = `listings/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      const key = `${data.folder}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
 
       const command = new PutObjectCommand({
         Bucket: bucket,
