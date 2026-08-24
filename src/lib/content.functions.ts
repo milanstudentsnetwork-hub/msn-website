@@ -12,10 +12,21 @@ export const listEvents = createServerFn({ method: "GET" }).handler(async () => 
   const { data, error } = await getPublicClient()
     .from("events")
     .select("*")
-    .eq("status", "published")
-    .order("event_date", { ascending: true });
+    .eq("status", "published");
   if (error) throw new Error(error.message);
-  return (data ?? []) as EventRow[];
+
+  // Recurring events store a fixed anchor date, not "today's" occurrence —
+  // roll it forward here so every consumer sees the next upcoming date
+  // without needing to know about recurrence itself. Ordering has to happen
+  // after this, since a recurring event's DB-stored date can be arbitrarily
+  // old relative to its rolled-forward display date.
+  const { getEffectiveEventDate } = await import("./event-recurrence");
+  const events = ((data ?? []) as EventRow[]).map((event) => ({
+    ...event,
+    event_date: getEffectiveEventDate(event),
+  }));
+  events.sort((a, b) => (a.event_date < b.event_date ? -1 : a.event_date > b.event_date ? 1 : 0));
+  return events;
 });
 
 export const listServices = createServerFn({ method: "GET" }).handler(async () => {

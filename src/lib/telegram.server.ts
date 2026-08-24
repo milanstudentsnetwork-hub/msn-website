@@ -154,16 +154,28 @@ export async function formatEventsReply(): Promise<string> {
   const { data, error } = await getPublicClient()
     .from("events")
     .select("*")
-    .eq("status", "published")
-    .gte("event_date", new Date().toISOString().slice(0, 10))
-    .order("event_date", { ascending: true })
-    .limit(RESULT_LIMIT);
+    .eq("status", "published");
 
   if (error || !data?.length) {
     return `No upcoming events published yet. Check ${SITE_URL}/events soon.`;
   }
 
-  const lines = (data as EventRow[]).map((event) => {
+  // A recurring event's stored date can be arbitrarily old — filtering by it
+  // directly in Postgres (as before) would silently drop it. Roll dates
+  // forward first, then filter/sort/limit in memory.
+  const { getEffectiveEventDate } = await import("./event-recurrence");
+  const todayIso = new Date().toISOString().slice(0, 10);
+  const upcoming = (data as EventRow[])
+    .map((event) => ({ ...event, event_date: getEffectiveEventDate(event) }))
+    .filter((event) => event.event_date >= todayIso)
+    .sort((a, b) => (a.event_date < b.event_date ? -1 : a.event_date > b.event_date ? 1 : 0))
+    .slice(0, RESULT_LIMIT);
+
+  if (upcoming.length === 0) {
+    return `No upcoming events published yet. Check ${SITE_URL}/events soon.`;
+  }
+
+  const lines = upcoming.map((event) => {
     const when =
       formatEventDate(event.event_date) + (event.start_time ? `, ${event.start_time}` : "");
     return `• <b>${escapeHtml(event.title)}</b>\n  ${when} — ${escapeHtml(event.location || "TBA")}`;

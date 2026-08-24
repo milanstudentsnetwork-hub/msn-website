@@ -259,6 +259,7 @@ export type Database = {
           event_date: string;
           id: string;
           is_featured: boolean;
+          is_recurring: boolean;
           location: string;
           price: number;
           rsvp_url: string | null;
@@ -279,6 +280,7 @@ export type Database = {
           event_date: string;
           id?: string;
           is_featured?: boolean;
+          is_recurring?: boolean;
           location?: string;
           price?: number;
           rsvp_url?: string | null;
@@ -299,6 +301,7 @@ export type Database = {
           event_date?: string;
           id?: string;
           is_featured?: boolean;
+          is_recurring?: boolean;
           location?: string;
           price?: number;
           rsvp_url?: string | null;

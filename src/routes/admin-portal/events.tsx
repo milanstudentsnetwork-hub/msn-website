@@ -65,6 +65,7 @@ const emptyForm = {
   capacity: "",
   price: "0",
   is_featured: false,
+  is_recurring: false,
   status: "draft" as "draft" | "published",
   sort_order: "0",
 };
@@ -117,6 +118,7 @@ function EventsAdminPage() {
       capacity: event.capacity != null ? String(event.capacity) : "",
       price: String(event.price),
       is_featured: event.is_featured,
+      is_recurring: event.is_recurring,
       status: event.status,
       sort_order: String(event.sort_order),
     });
@@ -142,6 +144,7 @@ function EventsAdminPage() {
           capacity: form.capacity ? Number(form.capacity) : null,
           price: Number(form.price) || 0,
           is_featured: form.is_featured,
+          is_recurring: form.is_recurring,
           status: form.status,
           sort_order: Number(form.sort_order) || 0,
         },
@@ -239,6 +242,19 @@ function EventsAdminPage() {
                     onChange={(e) => setForm({ ...form, end_time: e.target.value })}
                   />
                 </div>
+              </div>
+              <div className="flex items-center justify-between rounded-xl border border-border p-3">
+                <div>
+                  <Label>Repeats every 7 days</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Once this date passes, the site automatically shows the next weekly occurrence —
+                    no need to re-create it.
+                  </p>
+                </div>
+                <Switch
+                  checked={form.is_recurring}
+                  onCheckedChange={(v) => setForm({ ...form, is_recurring: v })}
+                />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
@@ -373,7 +389,12 @@ function EventsAdminPage() {
               events.map((event) => (
                 <TableRow key={event.id}>
                   <TableCell className="font-medium">{event.title}</TableCell>
-                  <TableCell>{event.event_date}</TableCell>
+                  <TableCell>
+                    {event.event_date}
+                    {event.is_recurring && (
+                      <span className="ml-1.5 text-xs text-muted-foreground">↻ weekly</span>
+                    )}
+                  </TableCell>
                   <TableCell className="capitalize">{event.category}</TableCell>
                   <TableCell>
                     <Badge variant={event.status === "published" ? "default" : "outline"}>

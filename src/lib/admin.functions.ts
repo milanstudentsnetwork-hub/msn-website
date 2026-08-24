@@ -45,6 +45,7 @@ const eventSchema = z.object({
   capacity: z.number().int().nullable().default(null),
   price: z.number().min(0).default(0),
   is_featured: z.boolean().default(false),
+  is_recurring: z.boolean().default(false),
   status: z.enum(["draft", "published"]).default("draft"),
   sort_order: z.number().int().default(0),
 });
