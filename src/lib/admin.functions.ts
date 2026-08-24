@@ -238,9 +238,13 @@ export const adminUpdateListing = createServerFn({ method: "POST" })
       previousStatus = existing?.status ?? null;
     }
 
+    // Admin-set prices are always exact — clear any legacy budget-range label
+    // (e.g. "€550–€700") so the display no longer prefers it over this price.
+    const updatePayload = rest.price !== undefined ? { ...rest, rent_range: "" } : rest;
+
     const { data: updated, error } = await context.supabase
       .from("accommodation_listings")
-      .update(stripUndefined(rest) as ListingUpdate)
+      .update(stripUndefined(updatePayload) as ListingUpdate)
       .eq("id", id)
       .select()
       .single();
